@@ -444,6 +444,7 @@
             const instruction = spokenSteps[nextStepIndex];
             document.getElementById('assistant-message').textContent = instruction;
             if ('speechSynthesis' in window) {
+                if (musicAudio) musicAudio.pause();
                 window.speechSynthesis.cancel();
                 window.speechSynthesis.speak(new SpeechSynthesisUtterance(instruction));
             }
@@ -659,13 +660,23 @@
             if (!musicPlaylist.length) return;
             musicIndex = (index + musicPlaylist.length) % musicPlaylist.length;
             const track = musicPlaylist[musicIndex];
+            musicAudio.pause();
+            musicAudio.removeAttribute('src');
+            musicAudio.load();
             musicAudio.src = track.url;
+            musicAudio.load();
             musicTrack.textContent = `${musicIndex + 1}/${musicPlaylist.length} · ${track.name}`;
             if (autoplay) musicAudio.play().catch(() => {});
         }
         musicFiles.addEventListener('change', () => {
             musicPlaylist.forEach((track) => URL.revokeObjectURL(track.url));
-            musicPlaylist = Array.from(musicFiles.files).map((file) => ({ name: file.name, url: URL.createObjectURL(file) }));
+            const seen = new Set();
+            musicPlaylist = Array.from(musicFiles.files).filter((file) => {
+                const key = `${file.name}:${file.size}:${file.lastModified}`;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            }).map((file) => ({ name: file.name, url: URL.createObjectURL(file) }));
             playMusicTrack(0);
         });
         musicAudio.addEventListener('ended', () => playMusicTrack(musicIndex + 1));
