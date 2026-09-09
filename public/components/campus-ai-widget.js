@@ -365,18 +365,18 @@ class CampusAIWidget extends HTMLElement {
       </style>
 
       <!-- Small Floating Circular Launcher Button on the Right -->
-      <button class="launcher-btn" id="launcher-btn" type="button" aria-label="Campus Assistant" title="Campus Assistant">
+      <button class="launcher-btn" id="launcher-btn" type="button" aria-label="Wayfinder AI" title="Wayfinder AI">
         <span class="launcher-icon">✨</span>
         <span class="online-dot"></span>
       </button>
 
       <!-- Expanded Assistant Card -->
-      <div class="card-container" id="card-container" role="dialog" aria-modal="false" aria-label="Campus Assistant">
+      <div class="card-container" id="card-container" role="dialog" aria-modal="false" aria-label="Wayfinder AI">
         <div class="card-header">
           <div class="header-title-group">
             <div class="header-avatar">✨</div>
             <div class="header-text">
-              <strong>Campus Assistant</strong>
+              <strong>Wayfinder AI</strong>
               <div class="header-status">
                 <span class="status-pulse"></span>
                 <span>Active</span>
@@ -389,7 +389,7 @@ class CampusAIWidget extends HTMLElement {
         <div class="messages-area" id="messages-area">
           <div class="msg-row msg-bot">
             <div class="msg-bubble">
-              Ask about campus, learning, coding, writing, study plans, or any question you are working through.
+              Ask anything: learn, plan, write, code, solve problems, or find your way around campus.
             </div>
           </div>
 
