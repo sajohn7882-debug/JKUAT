@@ -249,7 +249,7 @@ app.use(async (req, res, next) => {
 
 // Health check endpoint for serverless readiness probes
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', serverless: isServerless });
+  res.json({ status: 'ok', serverless: isServerless, aiConfigured: Boolean(process.env.GEMINI_API_KEY) });
 });
 
 app.get('/api/supabase-config', (req, res) => {
@@ -820,6 +820,7 @@ Use this campus knowledge for navigation and campus questions, but do not force 
   } catch (error) {
     console.error('Gemini chat handler error:', error);
     res.status(500).json({
+      reply: 'The assistant could not complete that request. Please try again shortly.',
       error: 'Failed to process question.',
       details: String(error.message || error)
     });

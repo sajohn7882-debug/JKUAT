@@ -495,7 +495,9 @@ class CampusAIWidget extends HTMLElement {
       }
       typingEl.remove();
 
-      const reply = data.reply || (response.ok ? 'Here is campus information for JKUAT.' : 'The campus assistant service is temporarily busy. Please retry.');
+      const reply = data.reply || (response.ok
+        ? 'Here is the information I found.'
+        : data.error || `The assistant request failed (${response.status}). Please try again.`);
       this._appendMessage(reply, 'bot');
       this._history.push({ role: 'model', text: reply });
     } catch (err) {
