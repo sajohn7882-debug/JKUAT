@@ -15,7 +15,7 @@ View your app in AI Studio: https://ai.studio/apps/066e7efd-9fb1-41c8-9be6-7a961
 
 1. Install dependencies:
    `npm install`
-2. Copy `.env.example` to `.env` and set `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `AI_TRAINING_KEY`, and optionally `GEMINI_API_KEY`.
+2. Copy `.env.example` to `.env` and set `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`.
 3. In the Supabase SQL Editor, run [`supabase-schema.sql`](supabase-schema.sql).
 4. Enable Google under Supabase Authentication > Providers and add your deployed URL plus `http://localhost:3000` to the redirect URLs.
 5. Run the app:
@@ -23,4 +23,3 @@ View your app in AI Studio: https://ai.studio/apps/066e7efd-9fb1-41c8-9be6-7a961
 
 The server uses the Supabase service role key only on the server. Never expose that key in browser code or commit `.env`.
 
-Open `/training` to add trusted knowledge notes. The training key must match `AI_TRAINING_KEY`; notes are stored with the application's Supabase state and included in future AI prompts.

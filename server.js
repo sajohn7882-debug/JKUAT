@@ -70,7 +70,6 @@ function defaultDatabase() {
   return {
     experiences: [],
     stranded: [],
-    ai_knowledge: [],
     users: [],
     messages: []
   };
@@ -110,7 +109,6 @@ function readDatabase() {
     inMemoryDb = {
       experiences: parsed.experiences || [],
       stranded: parsed.stranded || [],
-      ai_knowledge: parsed.ai_knowledge || [],
       users: parsed.users || [],
       messages: parsed.messages || []
     };
@@ -238,49 +236,11 @@ app.use(async (req, res, next) => {
 
 // Health check endpoint for serverless readiness probes
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', serverless: isServerless, aiConfigured: Boolean(process.env.GEMINI_API_KEY) });
+  res.json({ status: 'ok', serverless: isServerless });
 });
 
 app.get('/api/supabase-config', (req, res) => {
   res.json({ url: SUPABASE_URL, anonKey: process.env.SUPABASE_ANON_KEY || '' });
-});
-
-function canManageAiKnowledge(req) {
-  const configuredKey = process.env.AI_TRAINING_KEY || '';
-  return configuredKey && req.headers['x-ai-training-key'] === configuredKey;
-}
-
-app.get('/api/ai/knowledge', (req, res) => {
-  const db = readDatabase();
-  res.json((db.ai_knowledge || []).slice(-100));
-});
-
-app.post('/api/ai/knowledge', (req, res) => {
-  if (!canManageAiKnowledge(req)) {
-    return res.status(403).json({ error: 'Training access is not configured or the training key is invalid.' });
-  }
-  const title = String(req.body?.title || '').trim();
-  const content = String(req.body?.content || '').trim();
-  const category = String(req.body?.category || 'General').trim();
-  if (title.length < 2 || content.length < 10 || content.length > 12000) {
-    return res.status(400).json({ error: 'Provide a title and at least 10 characters of knowledge.' });
-  }
-  const db = readDatabase();
-  if (!Array.isArray(db.ai_knowledge)) db.ai_knowledge = [];
-  const entry = { id: crypto.randomUUID(), title, content, category, created_at: new Date().toISOString() };
-  db.ai_knowledge.push(entry);
-  writeDatabase(db);
-  res.status(201).json(entry);
-});
-
-app.delete('/api/ai/knowledge/:id', (req, res) => {
-  if (!canManageAiKnowledge(req)) {
-    return res.status(403).json({ error: 'Training access is not configured or the training key is invalid.' });
-  }
-  const db = readDatabase();
-  db.ai_knowledge = (db.ai_knowledge || []).filter((entry) => entry.id !== req.params.id);
-  writeDatabase(db);
-  res.json({ success: true });
 });
 
 // ==================== CAMPUS API ====================
@@ -795,8 +755,6 @@ const PAGE_ROUTES = {
   '/jkuat_navigator.html': 'jkuat_navigator.html',
   '/jkuat-navigator': 'jkuat_navigator.html',
   '/landing': 'landing.html',
-  '/training': 'training.html',
-  '/training.html': 'training.html',
   '/map': 'jkuatmap.html',
   '/jkuatmap': 'jkuatmap.html',
   '/jkuatmap.html': 'jkuatmap.html',
