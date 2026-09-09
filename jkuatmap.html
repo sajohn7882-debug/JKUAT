@@ -37,6 +37,12 @@
         .building strong { display: block; word-break: break-word; }
         .building small { display: block; margin-top: 3px; color: var(--muted); font-weight: 400; word-break: break-word; }
         .details { min-height: 48px; margin-top: 14px; padding: 12px; border-radius: 8px; color: var(--dark-blue); background: #eef6f3; font: .86rem/1.4 Arial, sans-serif; word-break: break-word; }
+        .building-assistant { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+        .building-assistant h3 { margin: 0 0 6px; font-size: 1.08rem; }
+        .building-assistant p { margin: 0 0 10px; color: var(--muted); font: .84rem/1.4 Arial, sans-serif; }
+        .building-assistant form { display: flex; gap: 6px; }
+        .building-assistant input { min-width: 0; }
+        .building-assistant button { width: auto; flex: 0 0 auto; padding: 0 12px; }
 
         /* Profile Circle at Top Left */
         .profile-container { position: relative; display: inline-flex; align-items: center; }
@@ -215,6 +221,15 @@
             <button id="location-button" type="button">Show my location</button>
             <button id="campus-button" class="secondary" type="button">Center on campus</button>
             <div id="details" class="details" role="status">Choose a building to see its map marker.</div>
+            <section class="building-assistant" aria-live="polite">
+                <h3>Building assistant</h3>
+                <p>Ask for a building's coordinates or directions.</p>
+                <form id="building-assistant-form">
+                    <input id="building-question" type="search" placeholder="Where is the library?" required>
+                    <button type="submit">Ask</button>
+                </form>
+                <div id="building-answer" class="details">I know every building listed below.</div>
+            </section>
             <div id="building-list" class="building-list"></div>
         </aside>
     </main>
@@ -249,6 +264,7 @@
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 20, attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
         const markers = new Map();
         let userMarker;
+        let origin = { ...campus };
         const list = document.getElementById('building-list');
         const details = document.getElementById('details');
 
@@ -256,6 +272,28 @@
             map.setView([building.lat, building.lon], 18);
             markers.get(building.name).openPopup();
             details.innerHTML = `<strong>${building.name}</strong><br>${building.type}<br><a href="jkuat_navigator.html">Plan a walking route</a>`;
+        }
+        function distanceBetween(first, second) {
+            const lat = (second.lat - first.lat) * Math.PI / 180;
+            const lon = (second.lon - first.lon) * Math.PI / 180;
+            const value = Math.sin(lat / 2) ** 2 + Math.cos(first.lat * Math.PI / 180) * Math.cos(second.lat * Math.PI / 180) * Math.sin(lon / 2) ** 2;
+            return 6371000 * 2 * Math.atan2(Math.sqrt(value), Math.sqrt(1 - value));
+        }
+        function directionFrom(first, second) {
+            const angle = (Math.atan2(second.lon - first.lon, second.lat - first.lat) * 180 / Math.PI + 360) % 360;
+            return ['north', 'north-east', 'east', 'south-east', 'south', 'south-west', 'west', 'north-west'][Math.round(angle / 45) % 8];
+        }
+        function answerBuildingQuestion(question) {
+            const normalized = question.toLowerCase();
+            const building = buildings.find((item) => normalized.includes(item.name.toLowerCase())) || buildings.find((item) => item.name.toLowerCase().split(' ').some((word) => word.length > 4 && normalized.includes(word)));
+            const answer = document.getElementById('building-answer');
+            if (!building) {
+                answer.textContent = 'I could not match that building. Try a name such as library, SCIT, hospital, engineering, hostel, gate, or auditorium.';
+                return;
+            }
+            showBuilding(building);
+            const distance = distanceBetween(origin, building);
+            answer.innerHTML = `<strong>${building.name}</strong><br>${building.type}<br>Coordinates: ${building.lat.toFixed(5)}, ${building.lon.toFixed(5)}<br>From your selected starting point: about ${distance < 1000 ? `${Math.round(distance)} metres` : `${(distance / 1000).toFixed(1)} km`} ${directionFrom(origin, building)}.<br><a href="jkuat_navigator.html">Open walking navigator</a>`;
         }
         function renderBuildings(query = '') {
             list.innerHTML = '';
@@ -278,6 +316,7 @@
             navigator.geolocation.getCurrentPosition((position) => {
                 const { latitude, longitude, accuracy } = position.coords;
                 if (userMarker) map.removeLayer(userMarker);
+                origin = { lat: latitude, lon: longitude };
                 userMarker = L.circleMarker([latitude, longitude], { radius: 9, color: '#075b67', fillColor: '#087e8b', fillOpacity: 1, weight: 3 }).addTo(map).bindPopup('You are here').openPopup();
                 map.setView([latitude, longitude], 17);
                 details.textContent = `Your location is shown on the map, accurate to about ${Math.round(accuracy)} metres.`;
@@ -286,6 +325,7 @@
         document.getElementById('building-search').addEventListener('input', (event) => renderBuildings(event.target.value));
         document.getElementById('location-button').addEventListener('click', showLocation);
         document.getElementById('campus-button').addEventListener('click', () => map.setView([campus.lat, campus.lon], 16));
+        document.getElementById('building-assistant-form').addEventListener('submit', (event) => { event.preventDefault(); answerBuildingQuestion(document.getElementById('building-question').value.trim()); });
         renderBuildings();
 
         // Map Rotation & Two-Finger Gesture Support
