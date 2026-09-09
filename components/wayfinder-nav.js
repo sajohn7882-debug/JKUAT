@@ -9,7 +9,6 @@ class WayfinderNav extends HTMLElement {
       { href: '/', label: 'Home', aliases: ['/index.html', '/home'] },
       { href: '/navigator', label: 'Navigator', aliases: ['/jkuat_navigator.html', '/jkuat_navigator'] },
       { href: '/map', label: 'Campus map', aliases: ['/jkuatmap.html', '/jkuatmap'] },
-      { href: '/expenses', label: 'Expenses', aliases: ['/expenses.html'] }
     ];
 
     const nav = document.createElement('nav');

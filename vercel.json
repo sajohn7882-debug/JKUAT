@@ -16,10 +16,6 @@
       "destination": "/api/index.js?path=/$1"
     },
     {
-      "source": "/voice_notes/(.*)",
-      "destination": "/api/index.js"
-    },
-    {
       "source": "/navigator",
       "destination": "/jkuat_navigator.html"
     },
@@ -38,10 +34,6 @@
     {
       "source": "/campus-map",
       "destination": "/jkuatmap.html"
-    },
-    {
-      "source": "/expenses",
-      "destination": "/expenses.html"
-    },
+    }
   ]
 }

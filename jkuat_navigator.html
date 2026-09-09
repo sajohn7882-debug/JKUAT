@@ -80,14 +80,11 @@
         .experience button { width: 100%; margin-top: 10px; min-height: 44px; font-size: .88rem; }
         .feedback-list { margin: 12px 0 0; padding: 0; list-style: none; }
         .feedback-list li { padding: 9px 0; border-top: 1px solid var(--line); color: var(--muted); font: .8rem/1.4 Arial, sans-serif; word-break: break-word; }
-        .help, .voice-notes { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
-        .help h3, .voice-notes h3 { margin: 0 0 8px; font-size: 1.08rem; }
+        .help { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+        .help h3 { margin: 0 0 8px; font-size: 1.08rem; }
         .help textarea { width: 100%; min-height: 70px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; resize: vertical; font: 16px Arial, sans-serif; }
-        .help button, .voice-notes button { width: 100%; margin-top: 10px; min-height: 44px; font-size: .88rem; }
-        .voice-notes p, .help p { color: var(--muted); font: .85rem/1.45 Arial, sans-serif; }
-        .voice-list { margin: 12px 0 0; padding: 0; list-style: none; }
-        .voice-list li { padding: 9px 0; border-top: 1px solid var(--line); }
-        .voice-list audio { width: 100%; height: 36px; }
+        .help button { width: 100%; margin-top: 10px; min-height: 44px; font-size: .88rem; }
+        .help p { color: var(--muted); font: .85rem/1.45 Arial, sans-serif; }
         .star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 4px; margin: 4px 0 8px; }
         .star-rating input { position: absolute; opacity: 0; pointer-events: none; }
         .star-rating label { margin: 0; color: #c7d0d0; cursor: pointer; font: 1.8rem Arial, sans-serif; padding: 4px 2px; }
@@ -98,9 +95,6 @@
         .photos h2 { margin: 0 0 5px; font-size: clamp(1.2rem, 3.5vw, 1.45rem); }
         .photos-intro { margin: 0 0 16px; color: var(--muted); font: .88rem/1.4 Arial, sans-serif; }
         .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: 10px; }
-        .building-photo { overflow: hidden; margin: 0; border: 1px solid var(--line); border-radius: 10px; background: white; width: 100%; }
-        .building-photo img { display: block; width: 100%; height: 130px; object-fit: cover; }
-        .building-photo figcaption { padding: 8px; font: 700 .78rem Arial, sans-serif; text-align: center; }
         @media (max-width: 820px) {
             header p { margin-left: 0; }
             .toolbar, .layout { grid-template-columns: 1fr; }
@@ -262,7 +256,6 @@
                             <span class="profile-chip">⚡ Online</span>
                         </div>
                         <div class="profile-links-list">
-                            <a href="expenses.html" class="profile-item-link">💰 Campus Expenses</a>
                             <a href="jkuatmap.html" class="profile-item-link">🗺️ Campus Map</a>
                         </div>
                         <button id="profile-card-close" type="button" class="profile-card-close">Close</button>
@@ -274,7 +267,6 @@
             <nav class="nav-links" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
                 <a class="home-link" href="index.html">Home</a>
                 <a class="home-link" href="jkuatmap.html">Campus map</a>
-                <a class="home-link" href="expenses.html">Expenses</a>
             </nav>
         </div>
         <p>Find your lecture building and walk there with confidence.</p>
@@ -360,36 +352,9 @@
                     </form>
                     <ul id="help-list" class="feedback-list"></ul>
                 </section>
-                <section class="voice-notes">
-                    <h3>Voice notes</h3>
-                    <p>Record a short route update or helpful message for other students.</p>
-                    <button id="record-button" class="primary" type="button">Start recording</button>
-                    <ul id="voice-list" class="voice-list"></ul>
-                </section>
                 <div class="legend"><span>Starting point</span><span>Destination</span></div>
             </aside>
         </div>
-        <section class="photos" aria-labelledby="photos-title">
-            <h2 id="photos-title">Know the buildings</h2>
-            <p class="photos-intro">Reference photos help you recognize your destination when you arrive. Replace these image links with verified JKUAT photographs as they become available.</p>
-            <div class="photo-grid">
-                <figure class="building-photo"><img src="/images/jkuat_library.jpg" alt="JKUAT Main Library building" loading="lazy"><figcaption>Main Library</figcaption></figure>
-                <figure class="building-photo"><img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=700&q=80" alt="Modern science building" loading="lazy"><figcaption>Science Complex</figcaption></figure>
-                <figure class="building-photo"><img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=700&q=80" alt="Campus office building" loading="lazy"><figcaption>COHES Building</figcaption></figure>
-                <figure class="building-photo"><img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=700&q=80" alt="Engineering workshop" loading="lazy"><figcaption>Engineering Workshops</figcaption></figure>
-                <figure class="building-photo"><img src="https://images.unsplash.com/photo-1564399579883-451a5d44ec08?auto=format&fit=crop&w=700&q=80" alt="University administration building" loading="lazy"><figcaption>Administration Block</figcaption></figure>
-                <figure class="building-photo"><img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=700&q=80" alt="University auditorium interior" loading="lazy"><figcaption>Main Auditorium</figcaption></figure>
-                <figure class="building-photo"><img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=700&q=80" alt="Student centre common area" loading="lazy"><figcaption>Student Centre</figcaption></figure>
-                <figure class="building-photo"><img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=700&q=80" alt="ICT centre server room" loading="lazy"><figcaption>ICT Centre</figcaption></figure>
-                <figure class="building-photo"><img src="https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=700&q=80" alt="Health centre reception" loading="lazy"><figcaption>JKUAT Health Centre</figcaption></figure>
-                <figure class="building-photo"><img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=700&q=80" alt="Hospital building corridor" loading="lazy"><figcaption>JKUAT Hospital</figcaption></figure>
-                <figure class="building-photo"><img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=700&q=80" alt="Catering kitchen" loading="lazy"><figcaption>Central Catering Unit</figcaption></figure>
-                <figure class="building-photo"><img src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=700&q=80" alt="University bookshop shelves" loading="lazy"><figcaption>University Bookshop</figcaption></figure>
-                <figure class="building-photo"><img src="https://images.unsplash.com/photo-1574267432553-4b4628081c31?auto=format&fit=crop&w=700&q=80" alt="Agriculture teaching greenhouse" loading="lazy"><figcaption>School of Agriculture</figcaption></figure>
-                <figure class="building-photo"><img src="https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=700&q=80" alt="Business school meeting room" loading="lazy"><figcaption>School of Business</figcaption></figure>
-                <figure class="building-photo"><img src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=700&q=80" alt="Architecture studio" loading="lazy"><figcaption>School of Architecture</figcaption></figure>
-                <figure class="building-photo"><img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=700&q=80" alt="Research laboratory" loading="lazy"><figcaption>Research and Innovation Centre</figcaption></figure>
-            </div>
         </section>
     </main>
 
@@ -497,19 +462,6 @@
                 }
             } catch {
                 helpList.innerHTML = '<li class="empty">No open help requests.</li>';
-            }
-        }
-        async function loadVoiceNotes() {
-            const voiceList = document.getElementById('voice-list');
-            try {
-                const response = await fetch('/api/voice-notes');
-                const text = await response.text();
-                const entries = text ? JSON.parse(text) : [];
-                if (Array.isArray(entries)) {
-                    voiceList.innerHTML = entries.slice().reverse().map((entry) => `<li><audio controls preload="none" src="${escapeHtml(entry.url)}"></audio><small>${escapeHtml(entry.date)}</small></li>`).join('') || '<li class="empty">No voice notes yet.</li>';
-                }
-            } catch {
-                voiceList.innerHTML = '<li class="empty">No voice notes yet.</li>';
             }
         }
         function promptForFeedback(destinationName) {
@@ -661,30 +613,6 @@
         }
         function rotateMap(amount) {
             rotateMapTo(mapRotation + amount, true);
-        }
-        async function toggleRecording() {
-            const button = document.getElementById('record-button');
-            if (recorder && recorder.state === 'recording') {
-                recorder.stop();
-                button.textContent = 'Start recording';
-                return;
-            }
-            if (!navigator.mediaDevices || !window.MediaRecorder) { button.textContent = 'Voice recording unavailable'; return; }
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            recordedChunks = [];
-            recorder = new MediaRecorder(stream);
-            recorder.ondataavailable = (event) => { if (event.data.size) recordedChunks.push(event.data); };
-            recorder.onstop = async () => {
-                stream.getTracks().forEach((track) => track.stop());
-                const reader = new FileReader();
-                reader.onloadend = async () => {
-                    await fetch('/api/voice-notes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: reader.result, date: new Date().toLocaleString() }) });
-                    await loadVoiceNotes();
-                };
-                reader.readAsDataURL(new Blob(recordedChunks, { type: recorder.mimeType }));
-            };
-            recorder.start();
-            button.textContent = 'Stop recording';
         }
         async function shareRoute(destination, distance, minutes) {
             const text = `Walking route to ${destination.name}: ${distance}, about ${minutes} minutes from ${currentPosition.label || 'my location'}.`;
@@ -890,12 +818,11 @@
         } catch { /* ignore storage error */ }
 
         // Page components initialization
-        document.getElementById('record-button').addEventListener('click', () => toggleRecording().catch(() => setStatus('Microphone permission is required for voice notes.', false, true)));
         userMarker = L.circleMarker([campusStart.lat, campusStart.lon], { radius: 9, color: '#075b67', fillColor: '#087e8b', fillOpacity: 1, weight: 3 }).addTo(map).bindPopup(campusStart.label);
         destinationSelect.value = 'JKUAT Main Library';
         document.getElementById('place-search').value = '';
         destinations.forEach((destination) => { const option = document.createElement('option'); option.value = destination.name; document.getElementById('place-suggestions').appendChild(option); });
-        Promise.all([loadFeedback(), loadHelpRequests(), loadVoiceNotes()]).catch(() => setStatus('Shared community features need the Python server to be running.', false, true));
+        Promise.all([loadFeedback(), loadHelpRequests()]).catch(() => setStatus('Shared community features need the Python server to be running.', false, true));
     </script>
 
     <!-- Encapsulated Floating Campus AI Widget & Chat Notifications -->

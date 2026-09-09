@@ -56,31 +56,20 @@ function getStorageDir() {
 
 const STORAGE_DIR = getStorageDir();
 const DATABASE_FILE = path.join(STORAGE_DIR, 'database.json');
-const VOICE_DIR = path.join(STORAGE_DIR, 'voice_notes');
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const supabase = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
   ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } })
   : null;
 
-// Safe initialization of voice notes directory
-try {
-  if (!fs.existsSync(VOICE_DIR)) {
-    fs.mkdirSync(VOICE_DIR, { recursive: true });
-  }
-} catch (err) {
-  console.warn('Storage directory initialization note:', err.message);
-}
 
 // In-memory sessions token -> userId
 const SESSIONS = new Map();
 
 function defaultDatabase() {
   return {
-    expenses: [],
     experiences: [],
     stranded: [],
-    voice_notes: [],
     users: [],
     messages: []
   };
@@ -113,15 +102,13 @@ function readDatabase() {
 
     const parsed = JSON.parse(content);
     if (Array.isArray(parsed)) {
-      inMemoryDb = { ...defaultDatabase(), expenses: parsed };
+      inMemoryDb = defaultDatabase();
       return inMemoryDb;
     }
 
     inMemoryDb = {
-      expenses: parsed.expenses || [],
       experiences: parsed.experiences || [],
       stranded: parsed.stranded || [],
-      voice_notes: parsed.voice_notes || [],
       users: parsed.users || [],
       messages: parsed.messages || []
     };
@@ -256,65 +243,7 @@ app.get('/api/supabase-config', (req, res) => {
   res.json({ url: SUPABASE_URL, anonKey: process.env.SUPABASE_ANON_KEY || '' });
 });
 
-// Static directory for uploaded voice notes
-try {
-  app.use('/voice_notes', express.static(VOICE_DIR));
-  if (VOICE_DIR !== path.join(BASE_DIR, 'voice_notes')) {
-    app.use('/voice_notes', express.static(path.join(BASE_DIR, 'voice_notes')));
-  }
-} catch (e) {
-  console.warn('Voice notes static serve warning:', e.message);
-}
-
-// ==================== EXPENSE & CAMPUS API ====================
-
-app.get('/api/expenses', (req, res) => {
-  const db = readDatabase();
-  res.json(db.expenses);
-});
-
-app.post('/api/expenses', (req, res) => {
-  try {
-    const name = String(req.body.name || '').trim();
-    const category = String(req.body.category || 'Other').trim();
-    const amount = Number(req.body.amount || 0);
-    const date = String(req.body.date || '').trim();
-
-    if (!name || amount <= 0 || !date) {
-      return res.status(400).json({ error: 'Invalid data' });
-    }
-
-    const saved = {
-      id: crypto.randomUUID(),
-      name,
-      category,
-      amount,
-      date
-    };
-
-    const db = readDatabase();
-    db.expenses.push(saved);
-    writeDatabase(db);
-    res.status(201).json(saved);
-  } catch {
-    res.status(400).json({ error: 'Invalid data' });
-  }
-});
-
-app.delete('/api/expenses', (req, res) => {
-  const db = readDatabase();
-  db.expenses = [];
-  writeDatabase(db);
-  res.json({ success: true });
-});
-
-app.delete('/api/expenses/:id', (req, res) => {
-  const expenseId = req.params.id;
-  const db = readDatabase();
-  db.expenses = db.expenses.filter((item) => item.id !== expenseId);
-  writeDatabase(db);
-  res.json({ success: true });
-});
+// ==================== CAMPUS API ====================
 
 app.get('/api/experiences', (req, res) => {
   const db = readDatabase();
@@ -381,45 +310,7 @@ app.post('/api/stranded', (req, res) => {
   }
 });
 
-app.get('/api/voice-notes', (req, res) => {
-  const db = readDatabase();
-  res.json(db.voice_notes.slice(-50));
-});
-
-app.post('/api/voice-notes', (req, res) => {
-  try {
-    const voiceData = String(req.body.data || '');
-    if (!voiceData.startsWith('data:audio/')) {
-      return res.status(400).json({ error: 'Invalid data' });
-    }
-
-    const [mimePart, encoded] = voiceData.split(',', 2);
-    const extension = mimePart.includes('webm') ? 'webm' : (mimePart.includes('ogg') ? 'ogg' : 'wav');
-    const filename = `${crypto.randomUUID()}.${extension}`;
-    try {
-      if (!fs.existsSync(VOICE_DIR)) {
-        fs.mkdirSync(VOICE_DIR, { recursive: true });
-      }
-      fs.writeFileSync(path.join(VOICE_DIR, filename), Buffer.from(encoded, 'base64'));
-    } catch (fsErr) {
-      console.warn('Voice note audio file persistence note:', fsErr.message);
-    }
-
-    const saved = {
-      id: crypto.randomUUID(),
-      url: `/voice_notes/${filename}`,
-      date: String(req.body.date || '')
-    };
-
-    const db = readDatabase();
-    db.voice_notes.push(saved);
-    writeDatabase(db);
-    res.status(201).json(saved);
-  } catch {
-    res.status(400).json({ error: 'Invalid data' });
-  }
-});
-
+// Removed voice notes API
 // ==================== CHAT API ====================
 
 app.post('/api/chat/register', (req, res) => {
@@ -863,9 +754,6 @@ const PAGE_ROUTES = {
   '/jkuatmap': 'jkuatmap.html',
   '/jkuatmap.html': 'jkuatmap.html',
   '/campus-map': 'jkuatmap.html',
-  '/expenses': 'expenses.html',
-  '/expenses.html': 'expenses.html',
-  '/expense': 'expenses.html',
   '/mapjkuattt': 'mapjkuattt.html',
   '/mapjkuattt.html': 'mapjkuattt.html',
   '/gallery': 'GALLERY.html',

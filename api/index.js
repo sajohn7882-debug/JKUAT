@@ -9,7 +9,7 @@ export default function handler(req, res) {
       if (target) {
         req.url = target.startsWith('/api') ? target : `/api${target.startsWith('/') ? '' : '/'}${target}`;
       }
-    } else if (!req.url.startsWith('/api') && !req.url.startsWith('/voice_notes') && !req.url.startsWith('/components')) {
+    } else if (!req.url.startsWith('/api') && !req.url.startsWith('/components')) {
       req.url = `/api${req.url.startsWith('/') ? '' : '/'}${req.url}`;
     }
   }
