@@ -5,7 +5,7 @@ export default function handler(req, res) {
   if (req && req.url) {
     if (req.url.startsWith('/api/index.js')) {
       const urlObj = new URL(req.url, 'http://localhost');
-      const target = urlObj.searchParams.get('url') || urlObj.searchParams.get('path') || req.headers['x-matched-path'];
+      const target = urlObj.searchParams.get('path') || urlObj.searchParams.get('url') || req.headers['x-matched-path'];
       if (target) {
         req.url = target.startsWith('/api') ? target : `/api${target.startsWith('/') ? '' : '/'}${target}`;
       }
