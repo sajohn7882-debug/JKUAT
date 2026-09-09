@@ -3,7 +3,7 @@
   "cleanUrls": true,
   "functions": {
     "api/index.js": {
-      "includeFiles": "{database.json,firebase-applet-config.json,*.html,public/**}"
+      "includeFiles": "{database.json,*.html,public/**}"
     }
   },
   "rewrites": [

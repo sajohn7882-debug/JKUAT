@@ -111,84 +111,44 @@
 		document.getElementById('auth-form').addEventListener('submit', async (event) => { event.preventDefault(); try { await startSession(await request('/api/chat/login', { method: 'POST', body: JSON.stringify({ identifier: document.getElementById('identifier').value, password: document.getElementById('password').value }) })); } catch (error) { showAuth(error.message); } });
 		document.getElementById('register-button').addEventListener('click', async () => { try { await startSession(await request('/api/chat/register', { method: 'POST', body: JSON.stringify({ name: document.getElementById('name').value, identifier: document.getElementById('identifier').value, password: document.getElementById('password').value }) })); } catch (error) { showAuth(error.message); } });
 		
-		// Default Firebase config for client fallback (e.g. static hosting / Vercel edge)
-		const FALLBACK_FIREBASE_CONFIG = {
-			apiKey: "AIzaSyC40AVRlKxeYS5tyc2XLk3jMS4PFrTFU40",
-			authDomain: "jkuatwayfinderapp.firebaseapp.com",
-			projectId: "jkuatwayfinderapp",
-			storageBucket: "jkuatwayfinderapp.firebasestorage.app",
-			messagingSenderId: "640278866633",
-			appId: "1:640278866633:web:133b6e715309656254fb18",
-			measurementId: "G-KKPYYLCEJ0"
-		};
+		let supabaseAuth = null;
 
-		let firebaseAuth = null;
-		let googleProvider = null;
-		let firebaseSignInWithPopup = null;
-		let firebaseSignInWithRedirect = null;
-		let firebaseGetRedirectResult = null;
-
-		(async function preloadFirebase() {
+		(async function preloadSupabase() {
 			try {
-				let config = FALLBACK_FIREBASE_CONFIG;
-				try {
-					const cfgRes = await fetch('/api/firebase-config');
-					if (cfgRes.ok) config = await cfgRes.json();
-				} catch (e) { }
-				const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js');
-				const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } = await import('https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js');
-				const app = getApps().length ? getApps()[0] : initializeApp(config);
-				firebaseAuth = getAuth(app);
-				googleProvider = new GoogleAuthProvider();
-				firebaseSignInWithPopup = signInWithPopup;
-				firebaseSignInWithRedirect = signInWithRedirect;
-				firebaseGetRedirectResult = getRedirectResult;
-				const redirectResult = await firebaseGetRedirectResult(firebaseAuth);
-				if (redirectResult && redirectResult.user) await completeFirebaseLogin(redirectResult.user);
+				const cfgRes = await fetch('/api/supabase-config');
+				const config = await cfgRes.json();
+				if (!config.url || !config.anonKey) return;
+				const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+				supabaseAuth = createClient(config.url, config.anonKey);
+				const { data } = await supabaseAuth.auth.getSession();
+				if (data.session) await completeSupabaseLogin(data.session);
 			} catch (err) {
-				console.error('Failed to initialize Firebase Auth', err);
-				if (err.code) document.getElementById('auth-message').textContent = firebaseAuthMessage(err);
+				console.error('Failed to initialize Supabase Auth', err);
 			}
 		})();
 
-		function firebaseAuthMessage(error) {
-			const messages = {
-				'auth/unauthorized-domain': 'This website is not authorized for Google sign-in. Add its domain in Firebase Console > Authentication > Settings.',
-				'auth/operation-not-allowed': 'Google sign-in is disabled. Enable the Google provider in Firebase Console > Authentication > Sign-in method.',
-				'auth/network-request-failed': 'Firebase could not reach Google. Check your internet connection and try again.'
-			};
-			return messages[error.code] || error.message || 'Firebase sign-in failed. Please try again.';
-		}
-
-		async function completeFirebaseLogin(user) {
+		async function completeSupabaseLogin(session) {
 			const statusMsg = document.getElementById('auth-message');
 			statusMsg.textContent = 'Authenticating session...';
-			const session = await request('/api/chat/firebase-login', {
+			const appSession = await request('/api/chat/supabase-login', {
 				method: 'POST',
-				body: JSON.stringify({ uid: user.uid, name: user.displayName || user.email, email: user.email })
+				body: JSON.stringify({ access_token: session.access_token })
 			});
-			await startSession(session);
+			await startSession(appSession);
 		}
 
-		// Firebase Google Sign-In Integration
 		document.getElementById('google-button').addEventListener('click', async () => {
 			const statusMsg = document.getElementById('auth-message');
-			if (!firebaseAuth || !firebaseSignInWithPopup) {
+			if (!supabaseAuth) {
 				statusMsg.textContent = 'Google sign-in is still initializing. Please wait a moment and try again.';
 				return;
 			}
-			statusMsg.textContent = 'Connecting to Google via Firebase...';
+			statusMsg.textContent = 'Connecting to Google via Supabase...';
 			try {
-				const cred = await firebaseSignInWithPopup(firebaseAuth, googleProvider);
-				await completeFirebaseLogin(cred.user);
+				await supabaseAuth.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
 			} catch (error) {
-				console.error('Firebase Auth error:', error);
-				if (['auth/popup-blocked', 'auth/popup-closed-by-user', 'auth/cancelled-popup-request'].includes(error.code)) {
-					statusMsg.textContent = 'Opening Google sign-in...';
-					await firebaseSignInWithRedirect(firebaseAuth, googleProvider);
-				} else {
-					statusMsg.textContent = firebaseAuthMessage(error);
-				}
+				console.error('Supabase Auth error:', error);
+				statusMsg.textContent = error.message || 'Google sign-in failed. Please try again.';
 			}
 		});
 

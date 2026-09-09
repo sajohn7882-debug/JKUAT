@@ -15,6 +15,10 @@ View your app in AI Studio: https://ai.studio/apps/066e7efd-9fb1-41c8-9be6-7a961
 
 1. Install dependencies:
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
+2. Copy `.env.example` to `.env` and set `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and optionally `GEMINI_API_KEY`.
+3. In the Supabase SQL Editor, run [`supabase-schema.sql`](supabase-schema.sql).
+4. Enable Google under Supabase Authentication > Providers and add the deployed URL plus `http://localhost:3000/chat.html` to the redirect URLs.
+5. Run the app:
    `npm run dev`
+
+The server uses the Supabase service role key only on the server. Never expose that key in browser code or commit `.env`.

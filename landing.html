@@ -28,6 +28,7 @@
 		.marquee-track { display: inline-block; padding: 10px 0; padding-left: 100%; animation: scroll-marquee 22s linear infinite; }
 		@keyframes scroll-marquee { from { transform: translateX(0); } to { transform: translateX(-100%); } }
 		@media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; padding-left: 0; } }
+		.copyright-top { margin: 0 0 10px; color: #dbe6eb; font: 700 .72rem Arial, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
 		.nav-links { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; }
 		nav a { color: #dbe6eb; text-decoration: none; font: 700 clamp(.78rem, 2.5vw, .85rem) Arial, sans-serif; padding: 4px 0; }
 		nav a:hover { color: var(--gold); }
@@ -71,6 +72,7 @@
 </head>
 <body>
 	<header>
+		<div class="copyright-top">Copyright &copy; 2026 Wekulo Saviour John</div>
 		<nav>
 			<div class="brand"><span class="mark" aria-label="JKUAT logo">JKUAT</span><span>JKUAT Wayfinder</span></div>
 			<div class="nav-links"><a href="jkuat_navigator.html">Navigator</a><a href="jkuatmap.html">Campus map</a><a href="expenses.html">Expenses</a><a href="chat.html">Chat</a></div>
@@ -107,6 +109,6 @@
 		</section>
 	</main>
 
-	<footer>JKUAT Wayfinder · Built to help students move around Juja campus with confidence. &copy; 2026 Saviour Wekulo John.</footer>
+	<footer>JKUAT Wayfinder · Built to help students move around Juja campus with confidence.</footer>
 </body>
 </html>

@@ -23,4 +23,4 @@
 12. **Root Escaping Wildcard Query**: Attempting to read `/databases/{database}/documents/{anything}` directly.
 
 ## 3. Verified Defense Rule Set
-All Firestore rules enforce strict property checks, size limits, and ABAC policies deployed via `firestore.rules`.
+Supabase access is restricted to the server-side service-role client. The browser receives only the Supabase URL and publishable anonymous key, while application state is protected by the `app_state` table's row-level security policy.

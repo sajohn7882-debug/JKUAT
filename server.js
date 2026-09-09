@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
@@ -5,6 +6,7 @@ import crypto from 'crypto';
 import os from 'os';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
+import { createClient } from '@supabase/supabase-js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -55,6 +57,11 @@ function getStorageDir() {
 const STORAGE_DIR = getStorageDir();
 const DATABASE_FILE = path.join(STORAGE_DIR, 'database.json');
 const VOICE_DIR = path.join(STORAGE_DIR, 'voice_notes');
+const SUPABASE_URL = process.env.SUPABASE_URL || '';
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const supabase = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } })
+  : null;
 
 // Safe initialization of voice notes directory
 try {
@@ -80,6 +87,8 @@ function defaultDatabase() {
 }
 
 let inMemoryDb = null;
+let databaseLoadPromise = null;
+let pendingDatabaseWrite = Promise.resolve();
 
 function readDatabase() {
   if (inMemoryDb) {
@@ -131,6 +140,53 @@ function writeDatabase(data) {
   } catch (error) {
     console.warn('Filesystem write deferred (using memory cache):', error.message);
   }
+  if (supabase) {
+    pendingDatabaseWrite = pendingDatabaseWrite
+      .catch(() => {})
+      .then(async () => {
+        const { error } = await supabase.from('app_state').upsert({
+          id: 'jkuat-wayfinder',
+          data,
+          updated_at: new Date().toISOString()
+        });
+        if (error) throw error;
+      })
+      .catch((error) => console.error('Supabase write failed:', error.message));
+  }
+}
+
+async function ensureDatabase() {
+  if (inMemoryDb || databaseLoadPromise) return databaseLoadPromise;
+  databaseLoadPromise = (async () => {
+    if (!supabase) {
+      readDatabase();
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('app_state')
+      .select('data')
+      .eq('id', 'jkuat-wayfinder')
+      .maybeSingle();
+    if (error) throw error;
+
+    if (data?.data) {
+      inMemoryDb = { ...defaultDatabase(), ...data.data };
+      return;
+    }
+
+    readDatabase();
+    const { error: seedError } = await supabase.from('app_state').upsert({
+      id: 'jkuat-wayfinder',
+      data: inMemoryDb,
+      updated_at: new Date().toISOString()
+    });
+    if (seedError) throw seedError;
+  })().catch((error) => {
+    console.error('Supabase initialization failed; using local storage:', error.message);
+    readDatabase();
+  });
+  return databaseLoadPromise;
 }
 
 function passwordHash(password, salt) {
@@ -181,65 +237,23 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+app.use(async (req, res, next) => {
+  try {
+    await ensureDatabase();
+    await pendingDatabaseWrite;
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Health check endpoint for serverless readiness probes
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', serverless: isServerless });
 });
 
-// Default Firebase config for serverless hosts (e.g. Vercel, Netlify) where static JSON might not be in working directory
-const DEFAULT_FIREBASE_CONFIG = {
-  projectId: "jkuatwayfinderapp",
-  appId: "1:640278866633:web:133b6e715309656254fb18",
-  apiKey: "AIzaSyC40AVRlKxeYS5tyc2XLk3jMS4PFrTFU40",
-  authDomain: "jkuatwayfinderapp.firebaseapp.com",
-  firestoreDatabaseId: "ai-studio-jkuatwayfinder-066e7efd-9fb1-41c8-9be6-7a961a6f0c8f",
-  storageBucket: "jkuatwayfinderapp.firebasestorage.app",
-  messagingSenderId: "640278866633",
-  measurementId: "G-KKPYYLCEJ0",
-  oAuthClientId: "640278866633-0tdkcc5jcbf9gfiof9oi9knh937eefgk.apps.googleusercontent.com"
-};
-
-function getFirebaseConfig() {
-  if (process.env.FIREBASE_CONFIG) {
-    try {
-      return { ...DEFAULT_FIREBASE_CONFIG, ...JSON.parse(process.env.FIREBASE_CONFIG) };
-    } catch {
-      // ignore
-    }
-  }
-  const searchPaths = [
-    path.join(BASE_DIR, 'firebase-applet-config.json'),
-    path.join(process.cwd(), 'firebase-applet-config.json'),
-    path.join(path.dirname(fileURLToPath(import.meta.url)), 'firebase-applet-config.json'),
-    path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'firebase-applet-config.json')
-  ];
-  for (const p of searchPaths) {
-    try {
-      if (fs.existsSync(p)) {
-        const parsed = JSON.parse(fs.readFileSync(p, 'utf8'));
-        return { ...DEFAULT_FIREBASE_CONFIG, ...parsed };
-      }
-    } catch {
-      // continue search
-    }
-  }
-  return DEFAULT_FIREBASE_CONFIG;
-}
-
-// Expose Firebase config for client-side authentication and Firestore
-app.get('/api/firebase-config', (req, res) => {
-  const config = getFirebaseConfig();
-  res.json({
-    projectId: config.projectId,
-    appId: config.appId,
-    apiKey: config.apiKey,
-    authDomain: config.authDomain,
-    firestoreDatabaseId: config.firestoreDatabaseId,
-    storageBucket: config.storageBucket,
-    messagingSenderId: config.messagingSenderId,
-    measurementId: config.measurementId,
-    oAuthClientId: config.oAuthClientId
-  });
+app.get('/api/supabase-config', (req, res) => {
+  res.json({ url: SUPABASE_URL, anonKey: process.env.SUPABASE_ANON_KEY || '' });
 });
 
 // Static directory for uploaded voice notes
@@ -472,21 +486,31 @@ app.post('/api/chat/login', (req, res) => {
   }
 });
 
-app.post('/api/chat/firebase-login', (req, res) => {
+app.post('/api/chat/supabase-login', async (req, res) => {
   try {
-    const { uid, name, email } = req.body || {};
-    if (!uid || !email) {
-      return res.status(400).json({ error: 'Invalid Firebase authentication details' });
+    const accessToken = String(req.body?.access_token || '');
+    if (!supabase || !accessToken) {
+      return res.status(400).json({ error: 'Supabase authentication is not configured' });
     }
 
+    const { data: authData, error: authError } = await supabase.auth.getUser(accessToken);
+    const authUser = authData?.user;
+    if (authError || !authUser?.email) {
+      return res.status(401).json({ error: 'Invalid Supabase authentication details' });
+    }
+
+    const uid = authUser.id;
+    const email = authUser.email;
+    const name = authUser.user_metadata?.full_name || authUser.user_metadata?.name || email.split('@')[0];
+
     const db = readDatabase();
-    let user = db.users.find((item) => item.identifier === email || item.firebase_uid === uid);
+    let user = db.users.find((item) => item.identifier === email || item.supabase_uid === uid);
 
     if (!user) {
       user = {
         id: crypto.randomUUID(),
-        firebase_uid: uid,
-        name: name || email.split('@')[0],
+        supabase_uid: uid,
+        name,
         identifier: email,
         password_hash: '',
         salt: '',
@@ -495,7 +519,7 @@ app.post('/api/chat/firebase-login', (req, res) => {
       };
       db.users.push(user);
     } else {
-      user.firebase_uid = uid;
+      user.supabase_uid = uid;
       user.last_login = new Date().toISOString();
       if (name && (!user.name || user.name.length < 2)) {
         user.name = name;
