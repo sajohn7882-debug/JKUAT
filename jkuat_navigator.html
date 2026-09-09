@@ -385,6 +385,9 @@
         ];
         let currentPosition = campusStart;
         let userMarker;
+        let accuracyCircle;
+        let movementTrail;
+        let hasLiveLocation = false;
         let destinationMarker;
         let routeLine;
         let alternativeLines = [];
@@ -400,7 +403,7 @@
         let recorder;
         let recordedChunks = [];
         const map = L.map('map').setView([campusStart.lat, campusStart.lon], 16);
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 20, attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', { maxZoom: 20, attribution: 'Tiles &copy; Esri &mdash; Source: Esri, OpenStreetMap contributors' }).addTo(map);
         const pedestrianPaths = [
             { name: 'Library to Science Complex path', points: [[-1.0911, 37.0118], [-1.0907, 37.0121], [-1.0898, 37.0126]] },
             { name: 'Student Centre to COHES path', points: [[-1.0920, 37.0120], [-1.0928, 37.0130], [-1.0935, 37.0142]] },
@@ -482,12 +485,17 @@
         }
         function showPosition(position, label) {
             currentPosition = { lat: position.coords.latitude, lon: position.coords.longitude, label };
+            hasLiveLocation = true;
             if (userMarker) {
                 userMarker.setLatLng([currentPosition.lat, currentPosition.lon]);
                 userMarker.setPopupContent(label);
             } else {
                 userMarker = L.circleMarker([currentPosition.lat, currentPosition.lon], { radius: 9, color: '#075b67', fillColor: '#087e8b', fillOpacity: 1, weight: 3 }).addTo(map).bindPopup(label);
             }
+            if (accuracyCircle) accuracyCircle.setLatLng([currentPosition.lat, currentPosition.lon]).setRadius(position.coords.accuracy);
+            else accuracyCircle = L.circle([currentPosition.lat, currentPosition.lon], { radius: position.coords.accuracy, color: '#087e8b', weight: 1, fillColor: '#087e8b', fillOpacity: .1 }).addTo(map);
+            if (!movementTrail) movementTrail = L.polyline([], { color: '#087e8b', weight: 3, opacity: .65, dashArray: '4 7' }).addTo(map);
+            movementTrail.addLatLng([currentPosition.lat, currentPosition.lon]);
             if (label === 'You are here') map.setView([currentPosition.lat, currentPosition.lon], 17);
             const accuracy = Math.round(position.coords.accuracy);
             if (!activeDestination) setStatus(`Live location active (about ${accuracy} m accuracy). Select your building and plan a walking route.`, true);
