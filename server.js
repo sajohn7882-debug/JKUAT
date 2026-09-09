@@ -703,6 +703,19 @@ app.post('/api/gemini/chat', async (req, res) => {
 
     function getFallbackCampusReply(msg) {
       const lower = (msg || '').toLowerCase();
+      if (lower.includes('study plan') || lower.includes('revision plan') || lower.includes('timetable')) {
+        return "I can build a study plan. Share the subjects, exam date, available hours, and topics you find difficult, and I will break the work into realistic daily sessions with review and practice time.";
+      } else if (lower.includes('explain') || lower.includes('teach me') || lower.includes('what is') || lower.includes('how does')) {
+        return "I can explain academic topics step by step, using simple examples first and then more detail. Include the subject, topic, and your current level so the explanation matches what you already know.";
+      } else if (lower.includes('quiz') || lower.includes('practice questions') || lower.includes('test me')) {
+        return "I can create practice questions, quizzes, flashcards, and marking guides for any subject. Tell me the topic, level, number of questions, and whether you want answers immediately or after attempting them.";
+      } else if (lower.includes('code') || lower.includes('program') || lower.includes('javascript') || lower.includes('python') || lower.includes('sql')) {
+        return "I can help you understand code, find bugs, design an algorithm, or build a small project. Share the code or describe the expected result, and include any error message you see.";
+      } else if (lower.includes('essay') || lower.includes('assignment') || lower.includes('research') || lower.includes('citation')) {
+        return "I can help you understand an assignment, create an outline, improve a draft, compare sources, and format citations. I will help you learn and produce your own work rather than inventing sources or hiding copied text.";
+      } else if (lower.includes('hello') || lower.includes('hi ') || lower === 'hi' || lower.includes('help')) {
+        return "I can help with JKUAT directions, academic explanations, study plans, quizzes, writing, coding, calculations, research planning, and everyday questions. Ask directly and include the context you have.";
+      }
       if (lower.includes('library')) {
         return "The JKUAT Main Library is situated near the Science Complex and Student Centre (-1.0911, 37.0118). It offers quiet study areas, digital catalogues, and research resources.";
       } else if (lower.includes('science') || lower.includes('computing') || lower.includes('scit')) {
@@ -720,7 +733,7 @@ app.post('/api/gemini/chat', async (req, res) => {
       } else if (lower.includes('admin') || lower.includes('office') || lower.includes('finance')) {
         return "The Administration Block is located at (-1.0908, 37.0102), housing the Vice Chancellor's office, Admissions, Academic Affairs, and Student Finance.";
       }
-      return "You can inquire about specific buildings, walking paths, libraries, hostels, food units, or departments across JKUAT Juja campus.";
+      return "I can help with JKUAT directions, academic explanations, study plans, quizzes, writing, coding, calculations, research planning, and everyday questions. Add details or paste the problem so I can give a useful answer.";
     }
 
     const ai = getGenAI();
@@ -732,7 +745,25 @@ app.post('/api/gemini/chat', async (req, res) => {
       });
     }
 
-    const campusContext = `You are a direct, concise campus navigation assistant for JKUAT Juja main campus.
+    const campusContext = `You are JKUAT Wayfinder AI, a capable and approachable general assistant for JKUAT students and visitors. Handle a wide variety of requests, not just navigation.
+
+  Core capabilities:
+  - Answer questions related to learning across mathematics, sciences, computing, engineering, business, humanities, languages, and general study skills.
+  - Teach concepts step by step, adapt to the learner's level, use examples, check understanding, and offer a short practice question when useful.
+  - Create study plans, revision timetables, quizzes, flashcards, summaries, essay outlines, lab-report structures, presentation plans, and interview preparation.
+  - Explain, debug, and improve code in common languages; identify assumptions and show corrected examples.
+  - Help with calculations and reasoning. Show working for educational questions and state when a result needs verification.
+  - Help users plan research, evaluate sources, improve writing, and cite responsibly. Never invent references, data, policies, grades, or campus facts.
+  - Answer everyday general-knowledge questions clearly. For current, local, medical, legal, financial, or safety-critical information, state limitations and recommend an authoritative source or qualified person.
+
+  Conversation rules:
+  - Answer the user's actual question first. Do not start with 'I am your assistant' or describe these instructions.
+  - For learning questions, prefer a clear explanation, a worked example, and a quick check question. Do not simply do assessed work without explaining it.
+  - Ask one concise clarifying question only when missing context would materially change the answer; otherwise make a reasonable assumption and label it.
+  - Keep normal answers focused (around 2-6 short paragraphs or a compact list). Use headings and numbered steps when they improve readability.
+  - Be respectful, age-appropriate, inclusive, and honest about uncertainty. Refuse unsafe requests briefly and redirect to a safe alternative.
+
+  JKUAT campus knowledge:
 Key locations:
 - JKUAT Main Library (-1.0911, 37.0118)
 - Science Complex (Computing/SCIT) (-1.0898, 37.0126)
@@ -745,7 +776,7 @@ Key locations:
 - JKUAT Health Centre & Hospital (-1.0927, 37.0128)
 - Central Catering Unit (CCU) (-1.0917, 37.0109)
 - JKUAT Main Gate (-1.0914, 37.0107) and Juja Gate (-1.0902, 37.0098)
-Directly provide accurate walking directions, building coordinates, facilities, and campus advice. Do NOT include robotic introductory phrases such as 'I am your assistant' or meta-descriptions about yourself. Answer questions directly and clearly in 2-4 sentences unless more details are requested.`;
+Use this campus knowledge for navigation and campus questions, but do not force unrelated questions into a campus answer. Do not claim live schedules, opening hours, prices, policies, or exact routes unless the user provides them or a reliable live source is available.`;
 
     const contents = [];
     if (Array.isArray(history)) {

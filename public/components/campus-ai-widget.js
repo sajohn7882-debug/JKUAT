@@ -389,15 +389,15 @@ class CampusAIWidget extends HTMLElement {
         <div class="messages-area" id="messages-area">
           <div class="msg-row msg-bot">
             <div class="msg-bubble">
-              Ask about any campus building, lecture hall, library, or route.
+              Ask about campus, learning, coding, writing, study plans, or any question you are working through.
             </div>
           </div>
 
           <div class="suggestions-row" id="suggestions-row">
             <button class="chip-btn" data-query="Where is the JKUAT Main Library?">📚 Main Library</button>
-            <button class="chip-btn" data-query="How do I get to Science Complex / SCIT?">💻 Science Complex</button>
-            <button class="chip-btn" data-query="Where is Central Catering Unit (CCU)?">🍽️ CCU Cafeteria</button>
-            <button class="chip-btn" data-query="Where are the Student Hostels?">🏠 Hostels</button>
+            <button class="chip-btn" data-query="Explain photosynthesis simply, then give me a practice question.">🧠 Learn a topic</button>
+            <button class="chip-btn" data-query="Make me a one-week study plan for mathematics and programming.">🗓️ Study plan</button>
+            <button class="chip-btn" data-query="Help me debug this code and explain the fix.">💻 Coding help</button>
           </div>
         </div>
 
