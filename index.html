@@ -402,7 +402,7 @@
         let recorder;
         let recordedChunks = [];
         const map = L.map('map').setView([campusStart.lat, campusStart.lon], 16);
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', { maxZoom: 20, attribution: 'Tiles &copy; Esri &mdash; Source: Esri, OpenStreetMap contributors' }).addTo(map);
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community' }).addTo(map);
         const pedestrianPaths = [
             { name: 'Library to Science Complex path', points: [[-1.0911, 37.0118], [-1.0907, 37.0121], [-1.0898, 37.0126]] },
             { name: 'Student Centre to COHES path', points: [[-1.0920, 37.0120], [-1.0928, 37.0130], [-1.0935, 37.0142]] },

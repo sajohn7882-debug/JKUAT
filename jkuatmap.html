@@ -261,7 +261,7 @@
             { name: 'Juja Gate', type: 'Campus entrance', lat: -1.0902, lon: 37.0098 }
         ];
         const map = L.map('map').setView([campus.lat, campus.lon], 16);
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', { maxZoom: 20, attribution: 'Tiles &copy; Esri &mdash; Source: Esri, OpenStreetMap contributors' }).addTo(map);
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Tiles &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community' }).addTo(map);
         const markers = new Map();
         let userMarker;
         let origin = { ...campus };
