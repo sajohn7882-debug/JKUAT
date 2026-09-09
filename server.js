@@ -866,8 +866,6 @@ const PAGE_ROUTES = {
   '/expenses': 'expenses.html',
   '/expenses.html': 'expenses.html',
   '/expense': 'expenses.html',
-  '/chat': 'chat.html',
-  '/chat.html': 'chat.html',
   '/mapjkuattt': 'mapjkuattt.html',
   '/mapjkuattt.html': 'mapjkuattt.html',
   '/gallery': 'GALLERY.html',

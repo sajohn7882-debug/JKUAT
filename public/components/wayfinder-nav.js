@@ -10,7 +10,7 @@ class WayfinderNav extends HTMLElement {
       { href: '/navigator', label: 'Navigator', aliases: ['/jkuat_navigator.html', '/jkuat_navigator'] },
       { href: '/map', label: 'Campus map', aliases: ['/jkuatmap.html', '/jkuatmap'] },
       { href: '/expenses', label: 'Expenses', aliases: ['/expenses.html'] },
-      { href: '/chat', label: 'Chat', aliases: ['/chat.html'] }
+      { href: '/expenses', label: 'Expenses', aliases: ['/expenses.html'] }
     ];
 
     const nav = document.createElement('nav');
@@ -27,18 +27,8 @@ class WayfinderNav extends HTMLElement {
       if (isCurrent) {
         a.setAttribute('aria-current', 'page');
       }
-      if (item.href === '/chat') {
-        const badge = document.createElement('span');
-        badge.className = 'nav-chat-badge';
-        badge.style.cssText = 'display: none; background: #ef4444; color: white; border-radius: 10px; font-size: 11px; padding: 1px 6px; font-weight: bold; margin-left: 4px;';
-        badge.textContent = '0';
-        a.appendChild(badge);
-      }
       nav.appendChild(a);
     });
-
-    const bell = document.createElement('chat-notification-bell');
-    nav.appendChild(bell);
 
     this.appendChild(nav);
   }

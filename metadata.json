@@ -1,6 +1,6 @@
 {
   "name": "JKUAT Wayfinder",
-  "description": "Campus navigation, wayfinding map, expense tracking, and student chat for JKUAT Juja campus.",
+  "description": "Campus navigation, wayfinding map, expense tracking, and learning assistant for JKUAT Juja campus.",
   "requestFramePermissions": [
     "geolocation",
     "microphone"

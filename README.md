@@ -17,7 +17,7 @@ View your app in AI Studio: https://ai.studio/apps/066e7efd-9fb1-41c8-9be6-7a961
    `npm install`
 2. Copy `.env.example` to `.env` and set `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and optionally `GEMINI_API_KEY`.
 3. In the Supabase SQL Editor, run [`supabase-schema.sql`](supabase-schema.sql).
-4. Enable Google under Supabase Authentication > Providers and add the deployed URL plus `http://localhost:3000/chat.html` to the redirect URLs.
+4. Enable Google under Supabase Authentication > Providers and add your deployed URL plus `http://localhost:3000` to the redirect URLs.
 5. Run the app:
    `npm run dev`
 
