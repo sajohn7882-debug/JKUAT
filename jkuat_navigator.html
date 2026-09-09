@@ -77,8 +77,6 @@
         .music-player p { color: var(--muted); font: .85rem/1.45 Arial, sans-serif; }
         .music-player input[type="file"] { width: 100%; margin: 8px 0; font: .8rem Arial, sans-serif; }
         .music-player audio { width: 100%; height: 38px; }
-        .music-controls { display: flex; gap: 8px; margin-top: 8px; }
-        .music-controls button { flex: 1; min-height: 40px; font-size: .82rem; }
         .music-track { display: block; margin-top: 8px; color: var(--blue-dark); font: 700 .8rem Arial, sans-serif; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .voice-controls { display: flex; flex-wrap: wrap; gap: 8px; }
         .voice-controls button { flex: 1 1 130px; min-height: 44px; padding: 0 12px; font-size: .82rem; }
@@ -334,10 +332,9 @@
                 <section class="music-player" aria-label="Local music player">
                     <h3>Music while you walk</h3>
                     <p>Choose music from your device. Files stay on this device and are never uploaded.</p>
-                    <input id="music-files" type="file" accept="audio/*" multiple>
+                    <input id="music-files" type="file" accept="audio/*">
                     <span id="music-track" class="music-track">No track selected</span>
                     <audio id="music-audio" controls preload="metadata"></audio>
-                    <div class="music-controls"><button id="music-previous" class="secondary" type="button">Previous</button><button id="music-next" class="secondary" type="button">Next</button></div>
                 </section>
                 <section class="experience">
                     <h3>Share your experience</h3>
@@ -655,35 +652,22 @@
         const musicAudio = document.getElementById('music-audio');
         const musicFiles = document.getElementById('music-files');
         const musicTrack = document.getElementById('music-track');
-        let musicPlaylist = [];
-        let musicIndex = 0;
-        function playMusicTrack(index, autoplay = true) {
-            if (!musicPlaylist.length) return;
-            musicIndex = (index + musicPlaylist.length) % musicPlaylist.length;
-            const track = musicPlaylist[musicIndex];
+        let musicUrl = '';
+        function playMusicTrack(file, autoplay = true) {
+            if (!file) return;
+            const track = { name: file.name, url: URL.createObjectURL(file) };
             musicAudio.pause();
-            musicAudio.removeAttribute('src');
-            musicAudio.load();
+            if (musicUrl) URL.revokeObjectURL(musicUrl);
+            musicUrl = track.url;
             musicAudio.src = track.url;
             musicAudio.load();
-            musicTrack.textContent = `${musicIndex + 1}/${musicPlaylist.length} · ${track.name}`;
+            musicTrack.textContent = track.name;
             if (autoplay) musicAudio.play().catch(() => {});
         }
         musicFiles.addEventListener('change', () => {
-            musicPlaylist.forEach((track) => URL.revokeObjectURL(track.url));
-            const seen = new Set();
-            musicPlaylist = Array.from(musicFiles.files).filter((file) => {
-                const key = `${file.name}:${file.size}:${file.lastModified}`;
-                if (seen.has(key)) return false;
-                seen.add(key);
-                return true;
-            }).map((file) => ({ name: file.name, url: URL.createObjectURL(file) }));
-            playMusicTrack(0);
+            playMusicTrack(musicFiles.files[0]);
         });
-        musicAudio.addEventListener('ended', () => playMusicTrack(musicIndex + 1));
-        document.getElementById('music-previous').addEventListener('click', () => playMusicTrack(musicIndex - 1));
-        document.getElementById('music-next').addEventListener('click', () => playMusicTrack(musicIndex + 1));
-        window.addEventListener('beforeunload', () => musicPlaylist.forEach((track) => URL.revokeObjectURL(track.url)));
+        window.addEventListener('beforeunload', () => { if (musicUrl) URL.revokeObjectURL(musicUrl); });
         document.getElementById('location-button').addEventListener('click', useLocation);
         document.getElementById('locate-map-button').addEventListener('click', locateOnMap);
         document.getElementById('center-button').addEventListener('click', centerOnCampus);
