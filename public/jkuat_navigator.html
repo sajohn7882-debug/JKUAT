@@ -360,9 +360,6 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-
-    <building-assistant></building-assistant>
-    <script type="module" src="/components/building-assistant.js"></script>
         const campusStart = { lat: -1.0914, lon: 37.0107, label: 'JKUAT Main Gate' };
         const destinations = [
             { name: 'JKUAT Main Library', lat: -1.0911, lon: 37.0118 },
@@ -828,6 +825,7 @@
         Promise.all([loadFeedback(), loadHelpRequests()]).catch(() => setStatus('Shared community features need the Python server to be running.', false, true));
     </script>
 
-    <!-- Encapsulated Floating Campus AI Widget & Chat Notifications -->
+    <building-assistant></building-assistant>
+    <script type="module" src="/components/building-assistant.js"></script>
 </body>
 </html>
