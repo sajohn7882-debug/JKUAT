@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JKUAT Wayfinder | Expenses</title>
+    <style>
+        :root { --navy: #17324d; --teal: #087e8b; --teal-dark: #075b67; --gold: #f4b942; --cream: #f7f4ec; --paper: #fffdf8; --muted: #64798a; --line: #d9e1dc; }
+        * { box-sizing: border-box; }
+        html, body { overflow-x: hidden; width: 100%; max-width: 100%; }
+        body { margin: 0; color: var(--navy); background: var(--cream); font-family: Georgia, 'Times New Roman', serif; }
+        header { padding: 16px clamp(14px, 4vw, 24px); background: var(--navy); color: white; border-bottom: 5px solid var(--gold); }
+        nav { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; }
+        nav a { color: #dbe6eb; text-decoration: none; font: 700 .85rem Arial, sans-serif; padding: 4px 8px; border-radius: 6px; background: rgba(255,255,255,0.08); }
+        nav a:hover { color: var(--gold); }
+        .brand { font-size: clamp(1.1rem, 4vw, 1.25rem); font-weight: bold; }
+        main { max-width: 900px; margin: 0 auto; padding: clamp(20px, 5vw, 44px) clamp(14px, 4vw, 22px); width: 100%; }
+        h1 { margin: 0 0 8px; font-size: clamp(1.6rem, 5.5vw, 3.2rem); word-break: break-word; }
+        .intro { margin: 0 0 24px; color: var(--muted); font: clamp(.9rem, 2.5vw, 1rem)/1.5 Arial, sans-serif; }
+        .layout { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 18px; align-items: start; width: 100%; }
+        .panel { padding: clamp(16px, 4vw, 24px); background: var(--paper); border: 1px solid var(--line); border-radius: 10px; width: 100%; }
+        .panel h2 { margin: 0 0 16px; font-size: clamp(1.15rem, 3.5vw, 1.35rem); }
+        label { display: block; margin: 12px 0 6px; color: var(--muted); font: 700 .75rem Arial, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+        input, select, button { width: 100%; min-height: 46px; padding: 0 12px; border: 1px solid var(--line); border-radius: 7px; color: var(--navy); background: white; font: 16px Arial, sans-serif; }
+        button { cursor: pointer; font-weight: 700; }
+        .primary { margin-top: 18px; color: white; background: var(--teal); border-color: var(--teal); }
+        .primary:hover { background: var(--teal-dark); }
+        .summary { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px; padding-bottom: 16px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+        .summary strong { display: block; color: var(--teal); font: 700 clamp(1.3rem, 4vw, 1.7rem) Arial, sans-serif; }
+        .summary span { color: var(--muted); font: .78rem Arial, sans-serif; }
+        .clear-button { width: auto; min-height: 38px; padding: 0 12px; color: #8a4b00; background: #fff3e8; border-color: #ead08a; font-size: .8rem; }
+        .expense-list { margin: 0; padding: 0; list-style: none; }
+        .expense-list li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 12px; padding: 12px 0; border-bottom: 1px solid var(--line); font: .9rem Arial, sans-serif; }
+        .expense-details { flex: 1 1 min(100%, 220px); }
+        .expense-name { font-weight: 700; word-break: break-word; }
+        .expense-meta { display: block; margin-top: 3px; color: var(--muted); font-size: .78rem; }
+        .expense-amount { font-weight: 700; white-space: nowrap; font-size: .95rem; }
+        .delete-button { width: auto; min-height: 36px; padding: 0 10px; color: #8a4b00; background: #fff5ee; border: 1px solid #ead08a; border-radius: 6px; font-size: .8rem; cursor: pointer; }
+        .empty { color: var(--muted); font: .9rem/1.5 Arial, sans-serif; }
+        @media (max-width: 768px) {
+            .layout { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="brand">JKUAT Wayfinder</div>
+            <div class="nav-links" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                <a href="index.html">Home</a>
+                <a href="jkuat_navigator.html">Navigator</a>
+                <a href="jkuatmap.html">Campus map</a>
+                <a href="chat.html">Chat <span class="nav-chat-badge" style="display: none; background: #ef4444; color: white; border-radius: 10px; font-size: 11px; padding: 1px 6px; font-weight: bold; margin-left: 4px;">0</span></a>
+                <chat-notification-bell></chat-notification-bell>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <h1>Track your expenses</h1>
+        <p class="intro">Record transport, food, printing, and other campus costs. Shared entries are saved for everyone using this site.</p>
+        <div class="layout">
+            <section class="panel">
+                <h2>Add expense</h2>
+                <form id="expense-form">
+                    <label for="expense-name">Description</label>
+                    <input id="expense-name" required maxlength="60" placeholder="e.g. Lunch at the cafeteria">
+                    <label for="expense-category">Category</label>
+                    <select id="expense-category">
+                        <option>Food</option><option>Transport</option><option>Books</option><option>Printing</option><option>Other</option>
+                    </select>
+                    <label for="expense-amount">Amount (KSh)</label>
+                    <input id="expense-amount" type="number" min="0.01" step="0.01" required placeholder="0.00">
+                    <label for="expense-date">Date</label>
+                    <input id="expense-date" type="date" required>
+                    <button class="primary" type="submit">Save expense</button>
+                </form>
+            </section>
+            <section class="panel">
+                <div class="summary"><div><span>Total spent</span><strong id="total">KSh 0.00</strong></div><button id="clear-button" class="clear-button" type="button">Clear all</button></div>
+                <ul id="expense-list" class="expense-list"></ul>
+            </section>
+        </div>
+    </main>
+    <script>
+        const form = document.getElementById('expense-form');
+        const expenseList = document.getElementById('expense-list');
+        const total = document.getElementById('total');
+        const dateInput = document.getElementById('expense-date');
+        dateInput.value = new Date().toISOString().slice(0, 10);
+
+        async function getExpenses() {
+            try {
+                const response = await fetch('/api/expenses');
+                if (!response.ok) return [];
+                const text = await response.text();
+                const data = text ? JSON.parse(text) : [];
+                return Array.isArray(data) ? data : [];
+            } catch {
+                return [];
+            }
+        }
+        async function renderExpenses() {
+            const expenses = await getExpenses();
+            const amountTotal = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+            total.textContent = `KSh ${amountTotal.toFixed(2)}`;
+            expenseList.innerHTML = expenses.length ? expenses.slice().reverse().map((expense) => `<li><div class="expense-details"><span class="expense-name">${escapeHtml(expense.name)}</span><span class="expense-meta">${escapeHtml(expense.category)} · ${expense.date}</span></div><span class="expense-amount">KSh ${expense.amount.toFixed(2)}</span><button class="delete-button" type="button" data-id="${expense.id}" aria-label="Delete ${escapeHtml(expense.name)}">Delete</button></li>`).join('') : '<li class="empty">No expenses saved yet.</li>';
+        }
+        function escapeHtml(value) {
+            return value.replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[character]);
+        }
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            await fetch('/api/expenses', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: document.getElementById('expense-name').value.trim(), category: document.getElementById('expense-category').value, amount: Number(document.getElementById('expense-amount').value), date: dateInput.value }) });
+            form.reset();
+            dateInput.value = new Date().toISOString().slice(0, 10);
+            renderExpenses();
+        });
+        expenseList.addEventListener('click', async (event) => {
+            if (!event.target.matches('.delete-button')) return;
+            await fetch(`/api/expenses/${event.target.dataset.id}`, { method: 'DELETE' });
+            await renderExpenses();
+        });
+        document.getElementById('clear-button').addEventListener('click', async () => {
+            if ((await getExpenses()).length && confirm('Delete all saved expenses?')) { await fetch('/api/expenses', { method: 'DELETE' }); await renderExpenses(); }
+        });
+        renderExpenses().catch(() => { expenseList.innerHTML = '<li class="empty">Unable to load shared expenses.</li>'; });
+    </script>
+
+    <!-- Encapsulated Floating Campus AI Widget & Chat Notifications -->
+    <campus-ai-widget></campus-ai-widget>
+    <script type="module" src="/components/campus-ai-widget.js"></script>
+    <script type="module" src="/components/chat-notifications.js"></script>
+</body>
+</html>

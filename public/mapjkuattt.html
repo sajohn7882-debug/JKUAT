@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JKUAT Live Campus Navigator</title>
+    <style>
+        /* ==========================================================================
+           1. COMPREHENSIVE STYLE Matrix
+           ========================================================================== */
+        :root {
+            --bg-deep: #060913;
+            --bg-panel: #0f172a;
+            --bg-canvas: #020617;
+            --color-jkuat-blue: #38bdf8;
+            --color-jkuat-gold: #f59e0b;
+            --color-green: #10b981;
+            --color-pink: #ec4899;
+            --text-main: #f8fafc;
+            --text-muted: #64748b;
+            --font-stack: 'Courier New', Courier, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-stack);
+            padding: clamp(14px, 4vw, 2rem);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            width: 100%;
+            max-width: 1400px;
+            text-align: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px dashed #334155;
+            padding-bottom: 1.5rem;
+        }
+
+        .nav-home {
+            display: inline-block;
+            margin-bottom: 12px;
+            color: var(--color-jkuat-blue);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: bold;
+            padding: 5px 12px;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            background: rgba(56, 189, 248, 0.05);
+        }
+        .nav-home:hover {
+            background: rgba(56, 189, 248, 0.15);
+        }
+
+        header h1 {
+            color: var(--color-jkuat-blue);
+            font-size: clamp(1.4rem, 5vw, 2.4rem);
+            margin-bottom: 0.5rem;
+            word-break: break-word;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            line-height: 1.5;
+        }
+
+        /* LIVE TELEMETRY BAR */
+        .telemetry-status {
+            background-color: #1e293b;
+            border: 1px solid var(--color-jkuat-blue);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 1400px;
+            padding: clamp(10px, 3vw, 1rem);
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            flex-wrap: wrap;
+            gap: 8px 16px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--text-muted);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .status-active { background-color: var(--color-green); box-shadow: 0 0 8px var(--color-green); }
+
+        /* ==========================================================================
+           2. NAVIGATION GRID CONTAINER
+           ========================================================================== */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(min(100%, 340px), 380px);
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 1400px;
+            margin-bottom: 2rem;
+        }
+
+        .map-viewport {
+            background-color: var(--bg-panel);
+            border: 1px solid #1e293b;
+            border-radius: 14px;
+            padding: clamp(12px, 3vw, 1.5rem);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
+            width: 100%;
+        }
+
+        .map-viewport h2 {
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            color: var(--color-jkuat-gold);
+            margin-bottom: 1rem;
+            word-break: break-word;
+        }
+
+        .map-frame-holder {
+            width: 100%;
+            height: 520px;
+            background-color: var(--bg-canvas);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #334155;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* INTERACTIVE SIDEBAR NAVIGATION LIST */
+        .registry-sidebar {
+            background-color: var(--bg-panel);
+            border: 1px solid #1e293b;
+            border-radius: 14px;
+            padding: clamp(12px, 3vw, 1.5rem);
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .registry-sidebar h2 {
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            color: var(--color-jkuat-blue);
+            margin-bottom: 1.2rem;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 0.5rem;
+        }
+
+        .routing-instructions {
+            background-color: var(--bg-canvas);
+            border: 1px dashed #334155;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: var(--color-jkuat-gold);
+            margin-bottom: 1.5rem;
+            word-break: break-word;
+        }
+
+        .node-list { list-style: none; }
+
+        .node-item {
+            font-size: 0.85rem;
+            padding: 1rem;
+            border: 1px solid #1e293b;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            background-color: rgba(2, 6, 23, 0.4);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .node-item:hover {
+            border-color: var(--color-jkuat-blue);
+            background-color: rgba(56, 189, 248, 0.05);
+        }
+
+        .node-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .btn-nav {
+            margin-top: 8px;
+            background-color: var(--color-jkuat-blue);
+            color: var(--bg-deep);
+            border: none;
+            padding: 8px 12px;
+            min-height: 40px;
+            font-family: var(--font-stack);
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            align-self: flex-start;
+        }
+
+        .btn-nav:hover { background-color: var(--color-jkuat-gold); }
+
+        footer {
+            margin-top: 2rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        @media (max-width: 860px) {
+            .dashboard-container { grid-template-columns: 1fr; gap: 1rem; }
+            .map-frame-holder { height: clamp(260px, 48vh, 420px); min-height: 250px; }
+            .btn-nav { width: 100%; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a class="nav-home" href="index.html">← Back to Home</a>
+        <h1>JKUAT Live Node Navigator</h1>
+        <p>A geospatial tracking hub monitoring user locations relative to Juja campus computational and lecture buildings.</p>
+    </header>
+
+    <!-- LIVE TELEMETRY MATRIX BLOCK -->
+    <div class="telemetry-status">
+        <div>
+            <span id="status-light" class="status-dot"></span>
+            <span id="status-text">GPS Hardware: Awaiting User Validation Link...</span>
+        </div>
+        <div id="coordinate-stream">Coordinates: [ Lat: --.---- , Lon: --.---- ]</div>
+    </div>
+
+    <div class="dashboard-container">
+        
+        <!-- INTERACTIVE CAMPUS CANVAS MAP -->
+        <main class="map-viewport">
+            <h2 id="current-target-title">Target Objective: Juja Campus Core Matrix</h2>
+            <div class="map-frame-holder">
+                <iframe id="campus-map" src="https://www.openstreetmap.org/export/embed.html?bbox=37.005%2C-1.099%2C37.020%2C-1.085&layer=mapnik" title="JKUAT Map View"></iframe>
+            </div>
+        </main>
+
+        <!-- ROUTING SYSTEM INPUT CONTROLS -->
+        <aside class="registry-sidebar">
+            <h2>Select Destination Target</h2>
+            <div id="route-output" class="routing-instructions">
+                Select a campus node below and activate the GPS positioning stream to calculate a vector route line.
+            </div>
+
+            <ul class="node-list">
+                <li class="node-item">
+                    <strong>JKUAT Main Library</strong>
+                    <div class="node-meta">Vector Coordinates: -1.0911, 37.0118</div>
+                    <button class="btn-nav" onclick="plotVectorPath('JKUAT Main Library', -1.0911, 37.0118)">Lock Target</button>
+                </li>
+                <li class="node-item">
+                    <strong>Science Complex (Computing Hub)</strong>
+                    <div class="node-meta">Vector Coordinates: -1.0898, 37.0126</div>
+                    <button class="btn-nav" onclick="plotVectorPath('Science Complex', -1.0898, 37.0126)">Lock Target</button>
+                </li>
+                <li class="node-item">
+                    <strong>COHES (Health Sciences Building)</strong>
+                    <div class="node-meta">Vector Coordinates: -1.0935, 37.0142</div>
+                    <button class="btn-nav" onclick="plotVectorPath('COHES Hub', -1.0935, 37.0142)">Lock Target</button>
+                </li>
+                <li class="node-item">
+                    <strong>Engineering Workshops</strong>
+                    <div class="node-meta">Vector Coordinates: -1.0948, 37.0105</div>
+                    <button class="btn-nav" onclick="plotVectorPath('Engineering Workshops', -1.0948, 37.0105)">Lock Target</button>
+                </li>
+            </ul>
+        </aside>
+
+    </div>
+
+    <footer>
+        <p>Juja Campus Infrastructure Ledger // Compiled by a CS &amp; Math Student.</p>
+    </footer>
+
+    <script>
+        let currentTarget = null;
+        let userLat = null;
+        let userLon = null;
+
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(updateLiveLocation, handleLocationFault, {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            });
+        } else {
+            const st = document.getElementById('status-text');
+            if (st) st.innerText = "Telemetry Fault: Browser lacks location support.";
+        }
+
+        function updateLiveLocation(position) {
+            userLat = position.coords.latitude;
+            userLon = position.coords.longitude;
+            const light = document.getElementById('status-light');
+            if (light) light.className = "status-dot status-active";
+            const st = document.getElementById('status-text');
+            if (st) st.innerText = "GPS Hardware: Active Signal Locked";
+            const stream = document.getElementById('coordinate-stream');
+            if (stream) stream.innerText = `Coordinates: [ Lat: ${userLat.toFixed(4)} , Lon: ${userLon.toFixed(4)} ]`;
+            if (currentTarget) {
+                updateDistanceCalculation();
+            }
+        }
+
+        function handleLocationFault() {
+            const st = document.getElementById('status-text');
+            if (st) st.innerText = "GPS Hardware: Awaiting or denied access.";
+        }
+
+        function plotVectorPath(name, lat, lon) {
+            currentTarget = { name, lat, lon };
+            const title = document.getElementById('current-target-title');
+            if (title) title.innerText = `Target Objective: ${name}`;
+            updateDistanceCalculation();
+
+            const mapFrame = document.getElementById('campus-map');
+            if (mapFrame) {
+                mapFrame.src = `https://www.openstreetmap.org/export/embed.html?bbox=${lon - 0.005}%2C${lat - 0.004}%2C${lon + 0.005}%2C${lat + 0.004}&layer=mapnik&marker=${lat}%2C${lon}`;
+            }
+        }
+
+        function updateDistanceCalculation() {
+            const out = document.getElementById('route-output');
+            if (!out || !currentTarget) return;
+            if (userLat !== null && userLon !== null) {
+                const dLat = (currentTarget.lat - userLat) * 111000;
+                const dLon = (currentTarget.lon - userLon) * 111000 * Math.cos(userLat * Math.PI / 180);
+                const distanceMeters = Math.round(Math.sqrt(dLat * dLat + dLon * dLon));
+                out.innerText = `Target locked: ${currentTarget.name} [${currentTarget.lat.toFixed(4)}, ${currentTarget.lon.toFixed(4)}]. Approximate straight-line distance: ${distanceMeters}m.`;
+            } else {
+                out.innerText = `Target locked: ${currentTarget.name} [${currentTarget.lat.toFixed(4)}, ${currentTarget.lon.toFixed(4)}]. Ready. Enable GPS to calculate real-time distance.`;
+            }
+        }
+    </script>
+</body>
+</html>

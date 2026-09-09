@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>JKUAT Wayfinder Chat</title>
+	<style>
+		:root { --ink: #17324d; --teal: #087e8b; --cream: #f7f4ec; --paper: #fffdf8; --line: #d9e1dc; --muted: #65798a; }
+		* { box-sizing: border-box; }
+		html, body { overflow-x: hidden; width: 100%; max-width: 100%; }
+		body { margin: 0; color: var(--ink); background: var(--cream); font-family: Arial, sans-serif; }
+		header { padding: 14px clamp(12px, 4vw, 24px); color: white; background: var(--ink); border-bottom: 4px solid #f4b942; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+		header strong { font-size: clamp(1.05rem, 4vw, 1.25rem); }
+		header a { color: white; text-decoration: none; font-weight: bold; font-size: .85rem; padding: 4px 10px; border-radius: 6px; background: rgba(255,255,255,0.1); }
+		main { max-width: 1050px; margin: 18px auto 36px; padding: 0 clamp(10px, 3.5vw, 18px); width: 100%; }
+		.auth, .chat { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: clamp(14px, 4vw, 22px); width: 100%; }
+		.auth { max-width: 460px; margin: 24px auto; }
+		h1 { margin-top: 0; font-size: clamp(1.4rem, 5vw, 1.9rem); word-break: break-word; }
+		h2 { margin-top: 0; font-size: clamp(1.15rem, 4vw, 1.4rem); }
+		label { display: block; margin: 12px 0 6px; color: var(--muted); font-size: .78rem; font-weight: bold; text-transform: uppercase; }
+		input, textarea, button { width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 7px; font: inherit; font-size: 16px; }
+		button { margin-top: 10px; cursor: pointer; font-weight: bold; }
+		.primary { color: white; background: var(--teal); border-color: var(--teal); }
+		.google { color: var(--ink); background: white; }
+		.notice { min-height: 22px; margin-top: 10px; color: #8a4b00; font-size: .88rem; word-break: break-word; }
+		.chat { display: grid; grid-template-columns: 250px 1fr; gap: 18px; }
+		.users { border-right: 1px solid var(--line); padding-right: 15px; }
+		.user { margin: 0 0 8px; text-align: left; background: white; border-radius: 7px; border: 1px solid var(--line); font-size: .92rem; display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; width: 100%; cursor: pointer; }
+		.user.selected { color: white; background: var(--teal); border-color: var(--teal); }
+		.user.selected .unread-badge { background: white; color: var(--teal); }
+		.unread-badge { background: #ef4444; color: white; font-size: 0.72rem; font-weight: bold; border-radius: 12px; padding: 2px 7px; min-width: 20px; text-align: center; }
+		.messages { height: clamp(260px, 46vh, 430px); overflow-y: auto; padding: 12px; border: 1px solid var(--line); background: white; border-radius: 8px; }
+		.message { max-width: 82%; margin: 8px 0; padding: 10px; border-radius: 10px; background: #eef6f3; font-size: .9rem; word-break: break-word; }
+		.mine { margin-left: auto; color: white; background: var(--teal); }
+		.empty { color: var(--muted); font-size: .9rem; }
+		.composer { display: grid; grid-template-columns: 1fr 90px; gap: 8px; margin-top: 12px; align-items: end; }
+		.composer textarea { resize: vertical; min-height: 46px; }
+		.composer button { margin-top: 0; min-height: 46px; }
+		@media (max-width: 768px) {
+			.chat { grid-template-columns: 1fr; gap: 14px; }
+			.users { border-right: 0; border-bottom: 1px solid var(--line); padding: 0 0 14px; max-height: 180px; overflow-y: auto; }
+			#user-list { display: flex; flex-wrap: wrap; gap: 6px; }
+			.user { margin: 0; width: auto; flex: 0 0 auto; padding: 8px 14px; border-radius: 20px; font-size: .85rem; }
+			.messages { height: clamp(240px, 42vh, 360px); }
+			.message { max-width: 90%; }
+		}
+	</style>
+</head>
+<body>
+	<header>
+		<strong>JKUAT Wayfinder Chat</strong>
+		<nav style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+			<a href="index.html">Home</a>
+			<a href="jkuat_navigator.html">Navigator</a>
+			<a href="jkuatmap.html">Campus map</a>
+			<a href="expenses.html">Expenses</a>
+			<chat-notification-bell></chat-notification-bell>
+		</nav>
+	</header>
+	<main>
+		<section id="auth" class="auth">
+			<h1>Connect with students</h1><p>Log in to send private messages to other registered users.</p>
+			<form id="auth-form"><label for="name">Name (registration only)</label><input id="name" autocomplete="name"><label for="identifier">Phone number or email</label><input id="identifier" required autocomplete="username"><label for="password">Password</label><input id="password" type="password" minlength="8" required autocomplete="current-password"><button class="primary" type="submit">Log in</button><button id="register-button" type="button">Create account</button><button id="google-button" class="google" type="button">Continue with Google</button></form>
+			<div id="auth-message" class="notice" role="status"></div>
+		</section>
+		<section id="chat" class="chat" hidden><aside class="users"><h2>People</h2><div id="user-list"></div><button id="logout-button">Log out</button></aside><section><h2 id="conversation-title">Select someone</h2><div id="messages" class="messages"><p class="empty">Choose a person to start chatting.</p></div><form id="message-form" class="composer"><textarea id="message-text" rows="1" placeholder="Write a message..." required></textarea><button class="primary" type="submit">Send</button></form></section></section>
+	</main>
+	<script>
+		let token = localStorage.getItem('jkuatChatToken'); let me; let selectedUser; let pollTimer;
+		const request = async (url, options = {}) => {
+			try {
+				const response = await fetch(url, {
+					...options,
+					headers: {
+						'Content-Type': 'application/json',
+						...(token ? { Authorization: `Bearer ${token}` } : {}),
+						...(options.headers || {})
+					}
+				});
+				const text = await response.text();
+				let data = null;
+				try {
+					data = text ? JSON.parse(text) : {};
+				} catch {
+					if (!response.ok) {
+						throw new Error(`Server returned status ${response.status}`);
+					}
+					throw new Error('Invalid response format from server');
+				}
+				if (!response.ok) {
+					throw new Error((data && data.error) || (data && data.message) || `Request failed (${response.status})`);
+				}
+				return data || {};
+			} catch (err) {
+				throw err;
+			}
+		};
+		function showAuth(message = '') { document.getElementById('auth').hidden = false; document.getElementById('chat').hidden = true; document.getElementById('auth-message').textContent = message; }
+		async function startSession(data) { token = data.token; me = data.user; localStorage.setItem('jkuatChatToken', token); document.getElementById('auth').hidden = true; document.getElementById('chat').hidden = false; await loadUsers(); }
+		async function loadUsers() {
+			const users = await request('/api/chat/users');
+			document.getElementById('user-list').innerHTML = users.length ? users.map((user) => `
+				<button class="user ${selectedUser && selectedUser.id === user.id ? 'selected' : ''}" data-id="${user.id}">
+					<span>${escapeHtml(user.name)}</span>
+					${user.unread_count > 0 ? `<span class="unread-badge" title="${user.unread_count} new messages">${user.unread_count}</span>` : ''}
+				</button>
+			`).join('') : '<p class="empty">No other users yet.</p>';
+		}
+		async function loadMessages() { if (!selectedUser) return; const messages = await request(`/api/chat/messages/${selectedUser.id}`); const box = document.getElementById('messages'); box.innerHTML = messages.length ? messages.map((message) => `<div class="message ${message.sender_id === me.id ? 'mine' : ''}">${escapeHtml(message.text)}<br><small>${new Date(message.created_at).toLocaleString()}</small></div>`).join('') : '<p class="empty">Start the conversation.</p>'; box.scrollTop = box.scrollHeight; }
+		function escapeHtml(value) { return String(value).replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[character]); }
+		document.getElementById('auth-form').addEventListener('submit', async (event) => { event.preventDefault(); try { await startSession(await request('/api/chat/login', { method: 'POST', body: JSON.stringify({ identifier: document.getElementById('identifier').value, password: document.getElementById('password').value }) })); } catch (error) { showAuth(error.message); } });
+		document.getElementById('register-button').addEventListener('click', async () => { try { await startSession(await request('/api/chat/register', { method: 'POST', body: JSON.stringify({ name: document.getElementById('name').value, identifier: document.getElementById('identifier').value, password: document.getElementById('password').value }) })); } catch (error) { showAuth(error.message); } });
+		
+		// Default Firebase config for client fallback (e.g. static hosting / Vercel edge)
+		const FALLBACK_FIREBASE_CONFIG = {
+			apiKey: "AIzaSyC40AVRlKxeYS5tyc2XLk3jMS4PFrTFU40",
+			authDomain: "jkuatwayfinderapp.firebaseapp.com",
+			projectId: "jkuatwayfinderapp",
+			storageBucket: "jkuatwayfinderapp.firebasestorage.app",
+			messagingSenderId: "640278866633",
+			appId: "1:640278866633:web:133b6e715309656254fb18",
+			measurementId: "G-KKPYYLCEJ0"
+		};
+
+		let firebaseAuth = null;
+		let googleProvider = null;
+		let firebaseSignInWithPopup = null;
+		let firebaseSignInWithRedirect = null;
+		let firebaseGetRedirectResult = null;
+
+		(async function preloadFirebase() {
+			try {
+				let config = FALLBACK_FIREBASE_CONFIG;
+				try {
+					const cfgRes = await fetch('/api/firebase-config');
+					if (cfgRes.ok) config = await cfgRes.json();
+				} catch (e) { }
+				const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js');
+				const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } = await import('https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js');
+				const app = getApps().length ? getApps()[0] : initializeApp(config);
+				firebaseAuth = getAuth(app);
+				googleProvider = new GoogleAuthProvider();
+				firebaseSignInWithPopup = signInWithPopup;
+				firebaseSignInWithRedirect = signInWithRedirect;
+				firebaseGetRedirectResult = getRedirectResult;
+				const redirectResult = await firebaseGetRedirectResult(firebaseAuth);
+				if (redirectResult && redirectResult.user) await completeFirebaseLogin(redirectResult.user);
+			} catch (err) {
+				console.error('Failed to initialize Firebase Auth', err);
+				if (err.code) document.getElementById('auth-message').textContent = firebaseAuthMessage(err);
+			}
+		})();
+
+		function firebaseAuthMessage(error) {
+			const messages = {
+				'auth/unauthorized-domain': 'This website is not authorized for Google sign-in. Add its domain in Firebase Console > Authentication > Settings.',
+				'auth/operation-not-allowed': 'Google sign-in is disabled. Enable the Google provider in Firebase Console > Authentication > Sign-in method.',
+				'auth/network-request-failed': 'Firebase could not reach Google. Check your internet connection and try again.'
+			};
+			return messages[error.code] || error.message || 'Firebase sign-in failed. Please try again.';
+		}
+
+		async function completeFirebaseLogin(user) {
+			const statusMsg = document.getElementById('auth-message');
+			statusMsg.textContent = 'Authenticating session...';
+			const session = await request('/api/chat/firebase-login', {
+				method: 'POST',
+				body: JSON.stringify({ uid: user.uid, name: user.displayName || user.email, email: user.email })
+			});
+			await startSession(session);
+		}
+
+		// Firebase Google Sign-In Integration
+		document.getElementById('google-button').addEventListener('click', async () => {
+			const statusMsg = document.getElementById('auth-message');
+			if (!firebaseAuth || !firebaseSignInWithPopup) {
+				statusMsg.textContent = 'Google sign-in is still initializing. Please wait a moment and try again.';
+				return;
+			}
+			statusMsg.textContent = 'Connecting to Google via Firebase...';
+			try {
+				const cred = await firebaseSignInWithPopup(firebaseAuth, googleProvider);
+				await completeFirebaseLogin(cred.user);
+			} catch (error) {
+				console.error('Firebase Auth error:', error);
+				if (['auth/popup-blocked', 'auth/popup-closed-by-user', 'auth/cancelled-popup-request'].includes(error.code)) {
+					statusMsg.textContent = 'Opening Google sign-in...';
+					await firebaseSignInWithRedirect(firebaseAuth, googleProvider);
+				} else {
+					statusMsg.textContent = firebaseAuthMessage(error);
+				}
+			}
+		});
+
+		document.getElementById('user-list').addEventListener('click', async (event) => {
+			const btn = event.target.closest('.user');
+			if (!btn) return;
+			const users = await request('/api/chat/users');
+			selectedUser = users.find((user) => user.id === btn.dataset.id);
+			if (selectedUser) {
+				document.getElementById('conversation-title').textContent = selectedUser.name;
+				await loadUsers();
+				await loadMessages();
+				clearInterval(pollTimer);
+				pollTimer = setInterval(loadMessages, 3000);
+			}
+		});
+		document.getElementById('message-form').addEventListener('submit', async (event) => { event.preventDefault(); if (!selectedUser) return; await request('/api/chat/messages', { method: 'POST', body: JSON.stringify({ recipient_id: selectedUser.id, text: document.getElementById('message-text').value }) }); document.getElementById('message-text').value = ''; await loadMessages(); });
+		document.getElementById('logout-button').addEventListener('click', () => { localStorage.removeItem('jkuatChatToken'); token = null; clearInterval(pollTimer); showAuth('You have logged out.'); });
+		if (token) request('/api/chat/me').then((user) => startSession({ token, user })).catch(() => { localStorage.removeItem('jkuatChatToken'); showAuth(); });
+	</script>
+
+	<!-- Encapsulated Floating Campus AI Widget & Chat Notifications -->
+	<campus-ai-widget></campus-ai-widget>
+	<script type="module" src="/components/campus-ai-widget.js"></script>
+	<script type="module" src="/components/chat-notifications.js"></script>
+</body>
+</html>

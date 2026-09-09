@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>JKUAT Wayfinder | Home</title>
+	<style>
+		:root {
+			--navy: #17324d;
+			--teal: #087e8b;
+			--teal-dark: #075b67;
+			--gold: #f4b942;
+			--cream: #f7f4ec;
+			--paper: #fffdf8;
+			--muted: #64798a;
+			--line: #d9e1dc;
+		}
+
+		* { box-sizing: border-box; }
+		html, body { overflow-x: hidden; width: 100%; max-width: 100%; }
+		body { margin: 0; color: var(--navy); background: var(--cream); font-family: Georgia, 'Times New Roman', serif; }
+		header { padding: 18px clamp(14px, 4vw, 24px); background: var(--navy); color: white; border-bottom: 5px solid var(--gold); }
+		nav { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; }
+		.brand { display: flex; align-items: center; gap: 10px; font-size: clamp(1rem, 4vw, 1.2rem); font-weight: bold; }
+		.mark { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border: 2px solid white; border-radius: 50%; background: var(--gold); color: var(--navy); font: 700 .58rem/1 Arial, sans-serif; letter-spacing: .02em; text-align: center; box-shadow: 0 0 0 3px rgba(244, 185, 66, .25); flex-shrink: 0; }
+		.mark::before { content: ''; position: absolute; width: 32px; height: 32px; border: 1px solid var(--navy); border-radius: 50%; opacity: .45; }
+		.marquee { margin-top: 14px; overflow: hidden; color: #dbe6eb; border-top: 1px solid rgba(255, 255, 255, .2); border-bottom: 1px solid rgba(255, 255, 255, .2); font: 700 .7rem Arial, sans-serif; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+		.marquee-track { display: inline-block; padding: 10px 0; padding-left: 100%; animation: scroll-marquee 22s linear infinite; }
+		@keyframes scroll-marquee { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+		@media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; padding-left: 0; } }
+		.nav-links { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; }
+		nav a { color: #dbe6eb; text-decoration: none; font: 700 clamp(.78rem, 2.5vw, .85rem) Arial, sans-serif; padding: 4px 0; }
+		nav a:hover { color: var(--gold); }
+		main { max-width: 1120px; margin: 0 auto; padding: clamp(28px, 6vw, 68px) clamp(14px, 4vw, 22px) 44px; width: 100%; }
+		.hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(24px, 5vw, 56px); align-items: center; }
+		.eyebrow { color: var(--teal); font: 700 .78rem Arial, sans-serif; text-transform: uppercase; letter-spacing: .12em; }
+		h1 { max-width: 650px; margin: 12px 0 16px; font-size: clamp(1.85rem, 7vw, 4.8rem); line-height: 1.05; letter-spacing: -.03em; word-break: break-word; }
+		.hero p { max-width: 550px; color: var(--muted); font: clamp(.95rem, 2.8vw, 1.08rem)/1.6 Arial, sans-serif; margin: 0; }
+		.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+		.button { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 18px; border-radius: 8px; text-decoration: none; font: 700 .92rem Arial, sans-serif; text-align: center; }
+		.primary { color: white; background: var(--teal); }
+		.primary:hover { background: var(--teal-dark); }
+		.secondary { color: var(--navy); background: var(--paper); border: 1px solid var(--line); }
+		.map-preview { position: relative; min-height: clamp(220px, 40vw, 360px); padding: 24px; overflow: hidden; border-radius: 14px; background: var(--navy); box-shadow: 0 20px 45px rgba(23, 50, 77, .12); width: 100%; }
+		.map-preview::before, .map-preview::after { content: ''; position: absolute; border: 1px solid rgba(244, 185, 66, .35); border-radius: 50%; }
+		.map-preview::before { width: 340px; height: 340px; top: -100px; right: -75px; }
+		.map-preview::after { width: 220px; height: 220px; bottom: -80px; left: -70px; }
+		.route-line { position: absolute; inset: 45px 36px; border: 2px dashed rgba(255, 255, 255, .35); border-left: 0; transform: rotate(-18deg); }
+		.pin { position: absolute; z-index: 1; width: 16px; height: 16px; border: 3px solid white; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 6px rgba(244, 185, 66, .2); }
+		.pin.start { left: 24%; bottom: 25%; }
+		.pin.end { right: 22%; top: 26%; background: var(--teal); box-shadow: 0 0 0 6px rgba(8, 126, 139, .2); }
+		.map-label { position: absolute; z-index: 1; right: 18px; bottom: 18px; color: white; font: 700 .8rem Arial, sans-serif; }
+		.how { margin-top: clamp(40px, 8vw, 76px); }
+		.how h2 { margin: 0 0 20px; font-size: clamp(1.4rem, 4.5vw, 2rem); }
+		.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+		.step { padding: clamp(16px, 3.5vw, 24px); background: var(--paper); border: 1px solid var(--line); border-radius: 10px; }
+		.number { color: var(--teal); font: 700 1.5rem Arial, sans-serif; }
+		.step h3 { margin: 12px 0 6px; font-size: 1.15rem; }
+		.step p { margin: 0; color: var(--muted); font: .9rem/1.5 Arial, sans-serif; }
+		footer { max-width: 1120px; margin: 0 auto; padding: 20px clamp(14px, 4vw, 22px) 28px; color: var(--muted); border-top: 1px solid var(--line); font: .8rem Arial, sans-serif; }
+		@media (max-width: 768px) {
+			.hero { grid-template-columns: 1fr; gap: 24px; }
+			.steps { grid-template-columns: 1fr; }
+		}
+		@media (max-width: 480px) {
+			nav { flex-direction: column; align-items: flex-start; gap: 10px; }
+			.actions { flex-direction: column; width: 100%; }
+			.button { width: 100%; }
+		}
+	</style>
+</head>
+<body>
+	<header>
+		<nav>
+			<div class="brand"><span class="mark" aria-label="JKUAT logo">JKUAT</span><span>JKUAT Wayfinder</span></div>
+			<div class="nav-links"><a href="jkuat_navigator.html">Navigator</a><a href="jkuatmap.html">Campus map</a><a href="expenses.html">Expenses</a><a href="chat.html">Chat</a></div>
+		</nav>
+		<div class="marquee" aria-label="Campus navigation announcement"><span class="marquee-track">Find your way across JKUAT campus &middot; Clear routes for every destination &middot; Find your way across JKUAT campus &middot; Clear routes for every destination</span></div>
+	</header>
+
+	<main>
+		<section class="hero">
+			<div>
+				<div class="eyebrow">Juja campus navigation</div>
+				<h1>Get to your class without getting stranded.</h1>
+				<p>Choose your building, allow location access, and follow a clear walking route across JKUAT campus.</p>
+				<div class="actions">
+					<a class="button primary" href="jkuat_navigator.html">Find my class <span aria-hidden="true">&nbsp;→</span></a>
+					<a class="button secondary" href="#how-it-works">How it works</a>
+				</div>
+			</div>
+			<div class="map-preview" aria-label="Illustration of a route across campus">
+				<div class="route-line"></div>
+				<span class="pin start" title="Your location"></span>
+				<span class="pin end" title="Your class"></span>
+				<span class="map-label">JKUAT campus route</span>
+			</div>
+		</section>
+
+		<section class="how" id="how-it-works">
+			<h2>Three simple steps</h2>
+			<div class="steps">
+				<article class="step"><span class="number">01</span><h3>Pick your building</h3><p>Search the destination list for your lecture hall, laboratory, or campus service.</p></article>
+				<article class="step"><span class="number">02</span><h3>Set your starting point</h3><p>Use your current location, or begin from the JKUAT main gate when GPS is unavailable.</p></article>
+				<article class="step"><span class="number">03</span><h3>Follow the route</h3><p>See your walking distance, estimated time, route line, and turn-by-turn steps.</p></article>
+			</div>
+		</section>
+	</main>
+
+	<footer>JKUAT Wayfinder · Built to help students move around Juja campus with confidence. &copy; 2026 Saviour Wekulo John.</footer>
+</body>
+</html>

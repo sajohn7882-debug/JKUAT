@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computational Mathematics & Systems Engineering Exhibition</title>
+    <style>
+        /* ==========================================================================
+           1. CORE ARCHITECTURE & THEME ENGINE
+           ========================================================================== */
+        :root {
+            --bg-deep: #05050a;
+            --bg-panel: #0d111d;
+            --bg-inner: #020204;
+            --color-neon-blue: #00f0ff;
+            --color-neon-pink: #ff007f;
+            --color-neon-green: #39ff14;
+            --color-neon-amber: #ffb000;
+            --text-primary: #e2e8f0;
+            --text-secondary: #64748b;
+            --font-monospace: 'Courier New', Courier, monospace;
+            --phi-constant: 1.61803398875;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            font-family: var(--font-monospace);
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* ==========================================================================
+           2. NAVIGATION AND HEADER
+           ========================================================================== */
+        header {
+            width: 100%;
+            max-width: 1400px;
+            text-align: center;
+            margin-bottom: 4rem;
+            border-bottom: 1px dashed #1e293b;
+            padding-bottom: 2.5rem;
+        }
+
+        header h1 {
+            color: var(--color-neon-blue);
+            font-size: 2.6rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 0.75rem;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* ==========================================================================
+           3. MASTER EXHIBITION MATRIX GRID (9 METRIC CARDS)
+           ========================================================================== */
+        .master-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 3rem;
+            width: 100%;
+            max-width: 1400px;
+            margin-bottom: 5rem;
+        }
+
+        .art-card {
+            background-color: var(--bg-panel);
+            border: 1px solid #1e293b;
+            border-radius: 16px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
+        }
+
+        .art-card h2 {
+            font-size: 1.15rem;
+            color: var(--color-neon-pink);
+            width: 100%;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .art-card h2 span {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .canvas-frame {
+            width: 300px;
+            height: 300px;
+            background-color: var(--bg-inner);
+            border: 1px dashed #334155;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card-caption {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-top: 1.5rem;
+            text-align: justify;
+        }
+
+        /* CARD 1: FIBONACCI SPIRAL FRAME */
+        .fibonacci-canvas { display: block; }
+        .f-spiral-segment {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-left: 2px solid var(--color-neon-blue);
+            border-top: 2px solid var(--color-neon-blue);
+            border-radius: 100% 0 0 0;
+            transform-origin: 100% 100%;
+            transform: scale(calc(1 / var(--phi-constant))) rotate(90deg);
+        }
+        .f-root {
+            width: 300px;
+            height: 300px;
+            transform: scale(0.88) translate(18px, 18px);
+        }
+
+        /* CARD 2: CONCENTRIC GEOMETRIC RINGS */
+        .ring-layer {
+            position: absolute;
+            border: 2px solid var(--color-neon-pink);
+            border-radius: 50%;
+        }
+        .rl-1 { width: 260px; height: 260px; opacity: 0.1; border-radius: 0%; transform: rotate(15deg); }
+        .rl-2 { width: 210px; height: 210px; opacity: 0.3; border-color: var(--color-neon-blue); }
+        .rl-3 { width: 160px; height: 160px; opacity: 0.5; border-radius: 0%; transform: rotate(45deg); }
+        .rl-4 { width: 110px; height: 110px; opacity: 0.7; border-color: var(--color-neon-blue); }
+        .rl-5 { width: 60px; height: 60px; background-color: rgba(57, 255, 20, 0.2); border-color: var(--color-neon-green); }
+
+        /* CARD 3: 3D VECTOR CUBE PROJECTION */
+        .perspective-box { perspective: 800px; }
+        .cube-vector-structure {
+            width: 110px;
+            height: 110px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: vectorRotation 14s infinite linear;
+        }
+        .cube-vector-face {
+            position: absolute;
+            width: 110px;
+            height: 110px;
+            border: 2px solid var(--color-neon-blue);
+            background: rgba(0, 240, 255, 0.03);
+        }
+        .face-front  { transform: translateZ(55px); }
+        .face-back   { transform: rotateY(180deg) translateZ(55px); }
+        .face-left   { transform: rotateY(-90deg) translateZ(55px); border-color: var(--color-neon-pink); }
+        .face-right  { transform: rotateY(90deg) translateZ(55px); border-color: var(--color-neon-pink); }
+        .face-top    { transform: rotateX(90deg) translateZ(55px); }
+        .face-bottom { transform: rotateX(-90deg) translateZ(55px); }
+
+        @keyframes vectorRotation {
+            from { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            to { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
+        }
+
+        /* CARD 4: PRIME PROBABILITY HISTOGRAM */
+        .histogram-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            padding: 20px;
+        }
+        .h-column {
+            width: 32px;
+            background: linear-gradient(to top, #0c1020, var(--color-neon-green));
+            border: 1px solid var(--color-neon-green);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+        }
+        .h-column::after {
+            content: attr(data-val);
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: var(--color-neon-green);
+        }
+        .hc-1 { height: 90%; } .hc-2 { height: 90%; } .hc-3 { height: 45%; } 
+        .hc-4 { height: 45%; } .hc-5 { height: 68%; } .hc-6 { height: 45%; }
+
+        /* CARD 5: ASYMPTOTIC BOUNDS LAYOUT */
+        .asymptotic-frame { relative; }
+        .graph-vector { position: absolute; background-color: #1e293b; }
+        .g-axis-y { left: 40px; top: 30px; width: 2px; height: 240px; }
+        .g-axis-x { left: 40px; bottom: 30px; width: 240px; height: 2px; }
+        .bound-curve { position: absolute; height: 2px; left: 42px; transform-origin: left bottom; }
+        .bc-constant { bottom: 80px; width: 220px; background-color: var(--color-neon-green); }
+        .bc-linear { bottom: 30px; width: 270px; background-color: var(--color-neon-amber); transform: rotate(-45deg); }
+        .bc-quadratic { bottom: 30px; width: 260px; background-color: var(--color-neon-pink); transform: rotate(-72deg); }
+        .lbl { position: absolute; font-size: 0.65rem; }
+        .lbl-1 { top: 50px; right: 90px; color: var(--color-neon-pink); }
+        .lbl-2 { top: 120px; right: 50px; color: var(--color-neon-amber); }
+        .lbl-3 { bottom: 90px; right: 50px; color: var(--color-neon-green); }
+
+        /* CARD 6: DISCRETE TRUTH TABLES MATRIX */
+        .boolean-matrix {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 5px;
+            padding: 12px;
+            width: 100%;
+            height: 100%;
+        }
+        .b-cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.75rem;
+            border: 1px solid #1a2235;
+            border-radius: 4px;
+        }
+        .bc-header { color: var(--color-neon-blue); background-color: #0d1324; font-weight: bold; }
+        .bc-state-t { color: var(--color-neon-green); background-color: rgba(57,255,20,0.06); }
+        .bc-state-f { color: var(--color-neon-pink); background-color: rgba(255,0,127,0.06); }
+
+        /* CARD 7: GRAPH THEORY ADJACENCY MATRIX */
+        .adjacency-matrix {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 4px;
+            padding: 15px;
+            width: 100%;
+            height: 100%;
+        }
+        .am-cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.75rem;
+            border: 1px solid #1c2333;
+</body>
+</html>g

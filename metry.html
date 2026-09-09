@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathematical Geometry & Discrete Computation Gallery</title>
+    <style>
+        /* ==========================================
+           GLOBAL VARIABLES & SYSTEM CONFIGURATION
+           ========================================== */
+        :root {
+            --bg-dark: #090d16;
+            --bg-card: #131e31;
+            --bg-canvas: #060911;
+            --accent-neon: #38bdf8;
+            --accent-pink: #ec4899;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --text-light: #f8fafc;
+            --text-muted: #64748b;
+            --text-code: #38bdf8;
+            --phi: 1.61803398875; /* Golden Ratio Base */
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 4rem;
+            max-width: 900px;
+            border-bottom: 1px dashed #1e293b;
+            padding-bottom: 2rem;
+        }
+
+        header h1 {
+            color: var(--accent-neon);
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        /* ==========================================
+           GALLERY GRID ARCHITECTURE (6-CARD COMPACT)
+           ========================================== */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 2.5rem;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 4rem;
+        }
+
+        .art-card {
+            background-color: var(--bg-card);
+            border: 1px solid #1e293b;
+            border-radius: 16px;
+            padding: 1.8rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .art-card:hover {
+            transform: translateY(-4px);
+            border-color: #334155;
+        }
+
+        .art-card h2 {
+            font-size: 1.1rem;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            color: var(--accent-pink);
+            align-self: flex-start;
+            border-bottom: 1px solid #1e293b;
+            width: 100%;
+            padding-bottom: 0.5rem;
+        }
+
+        .canvas {
+            width: 300px;
+            height: 300px;
+            background-color: var(--bg-canvas);
+            border-radius: 12px;
+            border: 1px solid #1e293b;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .description {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            margin-top: 1.5rem;
+            text-align: justify;
+        }
+
+        /* ==========================================
+           PIECE 1: FIBONACCI / GOLDEN SPIRAL VISUAL
+           ========================================== */
+        .golden-canvas { display: block; }
+        .fib-box {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-left: 2px solid var(--accent-neon);
+            border-top: 2px solid var(--accent-neon);
+            border-radius: 100% 0 0 0;
+            transform-origin: 100% 100%;
+            transform: scale(calc(1 / var(--phi))) rotate(90deg);
+        }
+        .fib-1 {
+            width: 300px;
+            height: 300px;
+            border: 1px solid rgba(56, 189, 248, 0.1);
+            transform: scale(0.9) translate(15px, 15px);
+        }
+
+        /* ==========================================
+           PIECE 2: CONCENTRIC GEOMETRIC MATRIX
+           ========================================== */
+        .ring {
+            position: absolute;
+            border: 2px solid var(--accent-pink);
+            border-radius: 50%;
+            transform: rotate(45deg);
+        }
+        .ring-1 { width: 260px; height: 260px; opacity: 0.1; border-radius: 0%; }
+        .ring-2 { width: 210px; height: 210px; opacity: 0.3; }
+        .ring-3 { width: 160px; height: 160px; opacity: 0.5; border-radius: 0%; }
+        .ring-4 { width: 110px; height: 110px; opacity: 0.7; }
+        .ring-5 { width: 60px; height: 60px; opacity: 0.9; border-radius: 0%; }
+
+        /* ==========================================
+           PIECE 3: 3D CUBE PROJECTION
+           ========================================== */
+        .cube-canvas { perspective: 600px; }
+        .cube {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotateCube 16s infinite linear; 
+        }
+        .face {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border: 2px solid var(--accent-neon);
+            background: rgba(56, 189, 248, 0.03);
+        }
+        .front  { transform: translateZ(60px); }
+        .back   { transform: rotateY(180deg) translateZ(60px); }
+        .left   { transform: rotateY(-90deg) translateZ(60px); }
+        .right  { transform: rotateY(90deg) translateZ(60px); }
+        .top    { transform: rotateX(90deg) translateZ(60px); }
+        .bottom { transform: rotateX(-90deg) translateZ(60px); }
+
+        @keyframes rotateCube {
+            from { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            to { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
+        }
+
+        /* ==========================================
+           PIECE 4: PRIME DENSITY HISTOGRAM
+           ========================================== */
+        .histogram-canvas {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-evenly;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .bar {
+            width: 24px;
+            background: linear-gradient(to top, #1e3a8a, var(--accent-green));
+            border-radius: 4px 4px 0 0;
+            position: relative;
+        }
+        .bar::before {
+            content: attr(data-label);
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.65rem;
+            color: var(--accent-green);
+        }
+        .bar-1 { height: 96%; }  /* Range 1-10 (4 Primes) */
+        .bar-2 { height: 96%; }  /* Range 11-20 (4 Primes) */
+        .bar-3 { height: 48%; }  /* Range 21-30 (2 Primes) */
+        .bar-4 { height: 48%; }  /* Range 31-40 (2 Primes) */
+        .bar-5 { height: 72%; }  /* Range 41-50 (3 Primes) */
+        .bar-6 { height: 48%; }  /* Range 51-60 (2 Primes) */
+
+        /* ==========================================
+           PIECE 5: ASYMPTOTIC COMPLEXITY PLOT
+           ========================================== */
+        .chart-canvas {
+            position: relative;
+        }
+        .axis {
+            position: absolute;
+            background-color: #334155;
+        }
+        .axis-y { left: 30px; top: 20px; width: 2px; height: 250px; }
+        .axis-x { left: 30px; bottom: 30px; width: 250px; height: 2px; }
+        
+        .curve-line {
+            position: absolute;
+            width: 220px;
+            height: 2px;
+            left: 32px;
+            transform-origin: left bottom;
+        }
+        /* O(1) Constant Time Layout */
+        .c-constant { bottom: 60px; background-color: var(--accent-green); }
+        /* O(N) Linear Time Layout */
+        .c-linear { bottom: 30px; background-color: var(--accent-amber); transform: rotate(-45deg); width: 280px;}
+        /* O(N^2) Quadratic Curve Approximation Steps */
+        .c-quadratic {
+            bottom: 30px;
+            background-color: var(--accent-pink);
+            transform: rotate(-75deg);
+            width: 280px;
+        }
+        .legend-tag {
+            position: absolute;
+            font-size: 0.7rem;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .tag-1 { top: 40px; right: 80px; color: var(--accent-pink); }
+        .tag-2 { top: 120px; right: 40px; color: var(--accent-amber); }
+        .tag-3 { bottom: 70px; right: 40px; color: var(--accent-green); }
+
+        /* ==========================================
+           PIECE 6: DISCRETE TRUTH TABLES MATRIX
+           ========================================== */
+        .matrix-canvas {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            padding: 10px;
+            gap: 4px;
+            box-sizing: border-box;
+        }
+        .m-cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.75rem;
+            border: 1px solid #1e293b;
+            border-radius: 4px;
+        }
+        .m-head { color: var(--accent-neon); font-weight: bold; background-color: #0f172a; }
+        .m-true { color: var(--accent-green); background-color: rgba(16, 185, 129, 0.05); }
+        .m-false { color: var(--accent-pink); background-color: rgba(236, 72, 153, 0.05); }
+
+
+        /* ==========================================
+           DOCUMENTATION & PROOF ANALYSIS FOOTPRINT
+           ========================================== */
+        .proof-container {
